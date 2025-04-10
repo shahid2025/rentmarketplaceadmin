@@ -158,7 +158,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     children: [
                                       SizedBox(
                                         width: MediaQuery.of(context).size.width * 0.62, // Take 70% of the screen width
-                                        child: Row(
+                                        child: const Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text('Title', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
@@ -177,13 +177,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                           stream: _firestore.collection('Posts').snapshots(),
                                           builder: (context, snapshot) {
                                             if (!snapshot.hasData) {
-                                              return Center(child: CircularProgressIndicator());
+                                              return const Center(child: CircularProgressIndicator());
                                             }
 
                                             var docs = snapshot.data!.docs;
 
                                             if (docs.isEmpty) {
-                                              return Center(child: Text('No data available'));
+                                              return const Center(child: Text('No data available'));
                                             }
 
                                             return ListView.builder(
@@ -216,7 +216,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                                           mainAxisAlignment: MainAxisAlignment.center,
                                                                           children: [
                                                                             IconButton(
-                                                                              icon: Icon(Icons.arrow_back_ios, size: 35),
+                                                                              icon: const Icon(Icons.arrow_back_ios, size: 35),
                                                                               onPressed: currentIndex > 0
                                                                                   ? () {
                                                                                 setState(() {
@@ -233,15 +233,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                                               loadingBuilder: (context, child, loadingProgress) {
                                                                                 print(images[currentIndex]);
                                                                                 if (loadingProgress == null) return child;
-                                                                                return Center(child: CircularProgressIndicator());
+                                                                                return const Center(child: CircularProgressIndicator());
                                                                               },
                                                                               errorBuilder: (context, error, stackTrace) {
-                                                                                return Center(child: Text('Image failed to load', style: TextStyle(color: Colors.red)));
+                                                                                return const Center(child: Text('Image failed to load', style: TextStyle(color: Colors.red)));
                                                                               },
                                                                             ),
 
                                                                             IconButton(
-                                                                              icon: Icon(Icons.arrow_forward_ios, size: 35),
+                                                                              icon: const Icon(Icons.arrow_forward_ios, size: 35),
                                                                               onPressed: currentIndex < images.length - 1
                                                                                   ? () {
                                                                                 setState(() {
@@ -260,7 +260,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                             },
                                                           );
                                                         },
-                                                        child: Text(
+                                                        child: const Text(
                                                           'View Images',
                                                           style: TextStyle(fontSize: 16, color: Colors.blue),
                                                         ),
@@ -288,7 +288,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                                 color: Colors.blue,
                                                                 borderRadius: BorderRadius.circular(8),
                                                               ),
-                                                              child: Text(
+                                                              child: const Text(
                                                                 'Approve',
                                                                 style: TextStyle(
                                                                   fontSize: 14,
@@ -298,7 +298,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                               ),
                                                             ),
                                                           ),
-                                                          SizedBox(width: 20,),
+                                                          const SizedBox(width: 20,),
                                                           InkWell(
                                                             onTap: () {
                                                               _deleteDataFromPost(doc.id);
@@ -311,7 +311,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                                 color: Colors.red,
                                                                 borderRadius: BorderRadius.circular(8),
                                                               ),
-                                                              child: Text(
+                                                              child: const Text(
                                                                 'Delete',
                                                                 style: TextStyle(
                                                                   fontSize: 14,
@@ -361,13 +361,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                             stream: _firestore.collection('approvedCollection').snapshots(),
                                             builder: (context, snapshot) {
                                               if (!snapshot.hasData) {
-                                                return Center(child: CircularProgressIndicator());
+                                                return const Center(child: CircularProgressIndicator());
                                               }
 
                                               var docs = snapshot.data!.docs;
 
                                               if (docs.isEmpty) {
-                                                return Center(child: Text('No data available'));
+                                                return const Center(child: Text('No data available'));
                                               }
 
                                               return ListView.builder(
@@ -400,7 +400,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                                             mainAxisAlignment: MainAxisAlignment.center,
                                                                             children: [
                                                                               IconButton(
-                                                                                icon: Icon(Icons.arrow_back_ios, size: 35),
+                                                                                icon: const Icon(Icons.arrow_back_ios, size: 35),
                                                                                 onPressed: currentIndex > 0
                                                                                     ? () {
                                                                                   setState(() {
@@ -417,15 +417,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                                                 loadingBuilder: (context, child, loadingProgress) {
                                                                                   print(images[currentIndex]);
                                                                                   if (loadingProgress == null) return child;
-                                                                                  return Center(child: CircularProgressIndicator());
+                                                                                  return const Center(child: CircularProgressIndicator());
                                                                                 },
                                                                                 errorBuilder: (context, error, stackTrace) {
-                                                                                  return Center(child: Text('Image failed to load', style: TextStyle(color: Colors.red)));
+                                                                                  return const Center(child: Text('Image failed to load', style: TextStyle(color: Colors.red)));
                                                                                 },
                                                                               ),
 
                                                                               IconButton(
-                                                                                icon: Icon(Icons.arrow_forward_ios, size: 35),
+                                                                                icon: const Icon(Icons.arrow_forward_ios, size: 35),
                                                                                 onPressed: currentIndex < images.length - 1
                                                                                     ? () {
                                                                                   setState(() {
@@ -444,7 +444,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                               },
                                                             );
                                                           },
-                                                          child: Text(
+                                                          child: const Text(
                                                             'View Images',
                                                             style: TextStyle(fontSize: 16, color: Colors.blue),
                                                           ),
@@ -462,7 +462,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                               color: Colors.red,
                                                               borderRadius: BorderRadius.circular(8),
                                                             ),
-                                                            child: Text(
+                                                            child: const Text(
                                                               'Delete',
                                                               style: TextStyle(
                                                                 fontSize: 14,
@@ -558,8 +558,8 @@ class UserData extends StatelessWidget {
                 .of(context)
                 .size
                 .width * 0.70, // Take 70% of the screen width
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
+            child: const Padding(
+              padding: EdgeInsets.all(16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -572,6 +572,8 @@ class UserData extends StatelessWidget {
                   Text('Totals ads', style: TextStyle(
                       fontSize: 15, fontWeight: FontWeight.bold)),
                   Text('Ads', style: TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.bold)),
+                  Text('Price', style: TextStyle(
                       fontSize: 15, fontWeight: FontWeight.bold)),
                   Text('Protection plan', style: TextStyle(
                       fontSize: 15, fontWeight: FontWeight.bold)),
@@ -591,13 +593,13 @@ class UserData extends StatelessWidget {
               stream: _firestore.collection('approvedCollection').snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
 
                 var docs = snapshot.data!.docs;
 
                 if (docs.isEmpty) {
-                  return Center(child: Text('No data available'));
+                  return const Center(child: Text('No data available'));
                 }
 
                 return ListView.builder(
@@ -615,7 +617,7 @@ class UserData extends StatelessWidget {
                           return Text('Error: ${snapshot.error}');
                         }
                         if (!snapshot.hasData) {
-                          return Center(child: CircularProgressIndicator());
+                          return const Center(child: CircularProgressIndicator());
                         }
                         final userName = snapshot.data![0];
                         final address = snapshot.data![1];
@@ -628,25 +630,25 @@ class UserData extends StatelessWidget {
                             children: [
                               Expanded(
                                 flex: 1, // Adjust flex values for better spacing
-                                child: Text(userName, style: TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
+                                child: Text(userName, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
                               ),
                               Expanded(
                                 flex: 2, // More space for address
                                 child: Text(
                                   address,
-                                  style: TextStyle(fontSize: 10),
+                                  style: const TextStyle(fontSize: 10),
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              SizedBox(width: 30,),
+                              const SizedBox(width: 30,),
 
                               Expanded(
                                 flex: 2,
-                                child: Text(doc['Description'], style: TextStyle(fontSize: 12)),
+                                child: Text(doc['Description'], style: const TextStyle(fontSize: 12)),
                               ),
                               Expanded(
                                 flex: 2,
-                                child: Text(docs.length.toString(), style: TextStyle(fontSize: 12)),
+                                child: Text(docs.length.toString(), style: const TextStyle(fontSize: 12)),
                               ),
                               Expanded(
                                 flex: 1,
@@ -665,14 +667,19 @@ class UserData extends StatelessWidget {
                                       ),
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: Text(doc['Title'], style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold,color: Colors.white)),
+                                        child: Text(doc['Title'], style: const TextStyle(fontSize: 15,fontWeight: FontWeight.bold,color: Colors.white)),
                                       )),
                                 ),
                               ),
-                              SizedBox(width: MediaQuery.of(context).size.height*.15,),
+                                SizedBox(width: MediaQuery.of(context).size.height*.15,),
+
                               Expanded(
                                 flex: 2,
-                                child: Text(doc['Insurance'], style: TextStyle(fontSize: 12)),
+                                child: Text(doc['Price'], style: const TextStyle(fontSize: 12)),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Text(doc['Insurance'], style: const TextStyle(fontSize: 12)),
                               ),
                             ],
                           )

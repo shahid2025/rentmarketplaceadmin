@@ -90,6 +90,7 @@ class _ListOfAdsState extends State<ListOfAds> {
                                   _buildTableRow("Duration:", doc['Duration']),
                                   _buildTableRow("Description:", doc['Description']),
                                   _buildTableRow("Insurance:", doc['Insurance']),
+                                  _buildTableRow("Price:", doc['Price']),
                                   _buildTableRow("Address:", address),
                                 ],
                               ),
