@@ -557,7 +557,7 @@ class UserData extends StatelessWidget {
             width: MediaQuery
                 .of(context)
                 .size
-                .width * 0.70, // Take 70% of the screen width
+                .width * 0.72, // Take 70% of the screen width
             child: const Padding(
               padding: EdgeInsets.all(16.0),
               child: Row(
@@ -565,8 +565,10 @@ class UserData extends StatelessWidget {
                 children: [
                   Text('Name', style: TextStyle(
                       fontSize: 15, fontWeight: FontWeight.bold)),
+                 // SizedBox(width: .2,),
                   Text('Address', style: TextStyle(
                       fontSize: 15, fontWeight: FontWeight.bold)),
+                // SizedBox(width: 1,),
                   Text('Description', style: TextStyle(
                       fontSize: 15, fontWeight: FontWeight.bold)),
                   Text('Totals ads', style: TextStyle(
@@ -629,7 +631,7 @@ class UserData extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
-                                flex: 1, // Adjust flex values for better spacing
+                                flex: 2, // Adjust flex values for better spacing
                                 child: Text(userName, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
                               ),
                               Expanded(
@@ -675,12 +677,13 @@ class UserData extends StatelessWidget {
 
                               Expanded(
                                 flex: 2,
-                                child: Text(doc['Price'], style: const TextStyle(fontSize: 12)),
+                                child: Text('\$${doc['Price']}', style: const TextStyle(fontSize: 12)),
                               ),
                               Expanded(
                                 flex: 2,
                                 child: Text(doc['Insurance'], style: const TextStyle(fontSize: 12)),
                               ),
+                              SizedBox(width: 10,)
                             ],
                           )
 
@@ -745,3 +748,5 @@ class UserData extends StatelessWidget {
   }
 
 }
+
+
