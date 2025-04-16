@@ -162,7 +162,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 child: SingleChildScrollView(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [SizedBox(
+                                    children: [
+                                      SizedBox(
                                       width: MediaQuery.of(context).size.width * 0.80,
                                       child: Row(
                                         children: [
@@ -188,11 +189,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                           ),
                                           SizedBox(
                                             width: MediaQuery.of(context).size.width * 0.11,
-                                            child: Text('Address', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                            child: const Text('Address', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                                           ),
                                           SizedBox(
                                             width: MediaQuery.of(context).size.width * 0.11,
-                                            child: Text('Description', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                            child: const Text('Description', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                                           ),
                                           const Expanded(
                                             flex: 2,
@@ -371,7 +372,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                                   const SizedBox(width: 20,),
                                                                   InkWell(
                                                                     onTap: () {
-                                                                      _deleteDataFromPost(doc.id);
+                                                                      var data = doc.data();
+                                                                      if (data is Map<String, dynamic>) {
+                                                                        _showDeleteReasonDialog(context, doc.id, data);
+                                                                      }
+                                                                     // _deleteDataFromPost(doc.id);
                                                                     },
                                                                     child: Container(
                                                                       alignment: Alignment.center,
@@ -419,20 +424,47 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: Column(
                                       children: [
-                                        const Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                    Text('Title',style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                                                                  Text('Description',style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                                                              Text('Images',style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                                                        Text('Actions',style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                                          ],
+                                        SizedBox(
+                                          width: MediaQuery.of(context).size.width * 0.80,
+                                          child: Row(
+                                            children: [
+                                              SizedBox(
+                                                width: MediaQuery.of(context).size.width * 0.08,
+                                                child: const Text('Name', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                              ),
+                                              SizedBox(
+                                                width: MediaQuery.of(context).size.width * 0.08,
+                                                child: const Text('Title', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                              ),
+                                              SizedBox(
+                                                width: MediaQuery.of(context).size.width * 0.07,
+                                                child: const Text('Protection', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                              ),
+                                              SizedBox(
+                                                width: MediaQuery.of(context).size.width * 0.08,
+                                                child: const Text('Images', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                              ),
+                                              SizedBox(
+                                                width: MediaQuery.of(context).size.width * 0.07,
+                                                child: const Text('Price', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                              ),
+
+                                              SizedBox(
+                                                width: MediaQuery.of(context).size.width * 0.15,
+                                                child: const Text('Description', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                              ),
+                                              SizedBox(
+                                                width: MediaQuery.of(context).size.width * 0.15,
+                                                child: const Text('Address', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                         const SizedBox(height: 5,),
                                         const Divider(),
                                         const SizedBox(height: 10,),
                                         SizedBox(
-                                          height: 300,
+                                          height: MediaQuery.of(context).size.height * 0.5,
                                           child: StreamBuilder<QuerySnapshot>(
                                             stream: _firestore.collection('approvedCollection').snapshots(),
                                             builder: (context, snapshot) {
@@ -454,102 +486,122 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                   List<dynamic> images = doc['Pictures_Url'] ?? [];
                                                   int currentIndex = 0;
 
-                                                  return Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: Row(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                      children: [
-                                                        Text(doc['Title']),
-                                                        Text(doc['Description']),
-                                                        InkWell(
-                                                          onTap: () {
-                                                            showDialog(
-                                                              context: context,
-                                                              builder: (context) {
-                                                                return StatefulBuilder(
-                                                                  builder: (context, setState) {
-                                                                    return AlertDialog(
-                                                                      content: Column(
-                                                                        mainAxisSize: MainAxisSize.min,
-                                                                        children: [
-                                                                          Row(
-                                                                            mainAxisAlignment: MainAxisAlignment.center,
-                                                                            children: [
-                                                                              IconButton(
-                                                                                icon: const Icon(Icons.arrow_back_ios, size: 35),
-                                                                                onPressed: currentIndex > 0
-                                                                                    ? () {
-                                                                                  setState(() {
-                                                                                    currentIndex--;
-                                                                                  });
-                                                                                }
-                                                                                    : null,
-                                                                              ),
-                                                                              Image.network(
-                                                                                images[currentIndex], // Directly using the URL
-                                                                                height: 300,
-                                                                                width: 500,
-                                                                                fit: BoxFit.contain,
-                                                                                loadingBuilder: (context, child, loadingProgress) {
-                                                                                  print(images[currentIndex]);
-                                                                                  if (loadingProgress == null) return child;
-                                                                                  return const Center(child: CircularProgressIndicator());
-                                                                                },
-                                                                                errorBuilder: (context, error, stackTrace) {
-                                                                                  return const Center(child: Text('Image failed to load', style: TextStyle(color: Colors.red)));
-                                                                                },
-                                                                              ),
+                                                  return FutureBuilder(
+                                                    future: Future.wait([
+                                                      getUserName(doc['Uid']),
+                                                      UserData.getAddressFromCoordinates(doc['Location']),
+                                                    ]),
 
-                                                                              IconButton(
-                                                                                icon: const Icon(Icons.arrow_forward_ios, size: 35),
-                                                                                onPressed: currentIndex < images.length - 1
-                                                                                    ? () {
-                                                                                  setState(() {
-                                                                                    currentIndex++;
-                                                                                  });
-                                                                                }
-                                                                                    : null,
-                                                                              ),
-                                                                            ],
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    );
-                                                                  },
-                                                                );
-                                                              },
-                                                            );
-                                                          },
-                                                          child: const Text(
-                                                            'View Images',
-                                                            style: TextStyle(fontSize: 16, color: Colors.blue),
-                                                          ),
-                                                        ),
+                                                    builder: (context, snapshot) {
+                                                      if (snapshot.hasData) {
 
-                                                        InkWell(
-                                                          onTap: () {
-                                                            _deleteData(doc.id);
-                                                          },
-                                                          child: Container(
-                                                            alignment: Alignment.center,
-                                                            height: 40,
-                                                            width: 80,
-                                                            decoration: BoxDecoration(
-                                                              color: Colors.red,
-                                                              borderRadius: BorderRadius.circular(8),
-                                                            ),
-                                                            child: const Text(
-                                                              'Delete',
-                                                              style: TextStyle(
-                                                                fontSize: 14,
-                                                                color: Colors.white,
-                                                                fontWeight: FontWeight.bold,
+                                                        final userName = snapshot.data![0];
+                                                        final address = snapshot.data![1];
+                                                        return Padding(
+                                                          padding: const EdgeInsets.only(left: 2.0,right: 4,top: 4,bottom: 4),
+                                                          child: Row(
+                                                            crossAxisAlignment: CrossAxisAlignment.start ,
+                                                            //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                            children: [
+                                                              SizedBox(
+                                                                width: MediaQuery.of(context).size.width * 0.08,
+                                                                child: Text(userName, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
                                                               ),
-                                                            ),
+                                                              SizedBox(
+                                                                width: MediaQuery.of(context).size.width * 0.08,
+                                                                child: Text(doc['Title'], style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
+                                                              ),
+                                                              SizedBox(
+                                                                width: MediaQuery.of(context).size.width * 0.065,
+                                                                child: Text(doc['Insurance'], style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
+                                                              ),
+                                                              InkWell(
+                                                                onTap: () {
+                                                                  showDialog(
+                                                                    context: context,
+                                                                    builder: (context) {
+                                                                      return StatefulBuilder(
+                                                                        builder: (context, setState) {
+                                                                          return AlertDialog(
+                                                                            content: Column(
+                                                                              mainAxisSize: MainAxisSize.min,
+                                                                              children: [
+                                                                                Row(
+                                                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                                                  children: [
+                                                                                    IconButton(
+                                                                                      icon: const Icon(Icons.arrow_back_ios, size: 35),
+                                                                                      onPressed: currentIndex > 0
+                                                                                          ? () {
+                                                                                        setState(() {
+                                                                                          currentIndex--;
+                                                                                        });
+                                                                                      }
+                                                                                          : null,
+                                                                                    ),
+                                                                                    Image.network(
+                                                                                      images[currentIndex], // Directly using the URL
+                                                                                      height: 300,
+                                                                                      width: 500,
+                                                                                      fit: BoxFit.contain,
+                                                                                      loadingBuilder: (context, child, loadingProgress) {
+                                                                                        print(images[currentIndex]);
+                                                                                        if (loadingProgress == null) return child;
+                                                                                        return const Center(child: CircularProgressIndicator());
+                                                                                      },
+                                                                                      errorBuilder: (context, error, stackTrace) {
+                                                                                        return const Center(child: Text('Image failed to load', style: TextStyle(color: Colors.red)));
+                                                                                      },
+                                                                                    ),
+
+                                                                                    IconButton(
+                                                                                      icon: const Icon(Icons.arrow_forward_ios, size: 35),
+                                                                                      onPressed: currentIndex < images.length - 1
+                                                                                          ? () {
+                                                                                        setState(() {
+                                                                                          currentIndex++;
+                                                                                        });
+                                                                                      }
+                                                                                          : null,
+                                                                                    ),
+                                                                                  ],
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          );
+                                                                        },
+                                                                      );
+                                                                    },
+                                                                  );
+                                                                },
+                                                                child: SizedBox(
+                                                                  width: MediaQuery.of(context).size.width * 0.08,
+                                                                  child: const Text(
+                                                                    'View Images',
+                                                                    style: TextStyle(fontSize: 12, color: Colors.blue),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Padding(
+                                                                padding: const EdgeInsets.only(left: 3.0),
+                                                                child: SizedBox(
+                                                                    width: MediaQuery.of(context).size.width * 0.06,
+                                                                    child: Text(doc['Price'])),
+                                                              ),
+                                                            SizedBox(
+                                                                  width: MediaQuery.of(context).size.width * 0.15,
+                                                                  child: Text(doc['Description'],style: const TextStyle(fontSize: 12),overflow: TextOverflow.ellipsis,)),
+                                                              SizedBox(
+                                                                  width: MediaQuery.of(context).size.width * 0.15,
+                                                                  child: Text(address,style: const TextStyle(fontSize: 12),overflow: TextOverflow.ellipsis,)), // Display the address here
+
+                                                            ],
                                                           ),
-                                                        ),
-                                                      ],
-                                                    ),
+                                                        );
+                                                      } else {
+                                                        return const Center(child: CircularProgressIndicator());
+                                                      }
+                                                    },
                                                   );
                                                 },
                                               );
@@ -585,6 +637,88 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
     );
   }
+  void _showDeleteReasonDialog(BuildContext context, String postId, Map<String, dynamic> data) {
+    final TextEditingController _reasonController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Reject Ad"),
+          content: TextField(
+            controller: _reasonController,
+            decoration: const InputDecoration(
+              labelText: "Enter reason for rejection",
+              border: OutlineInputBorder(),
+            ),
+            maxLines: 3,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+              },
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                String reason = _reasonController.text.trim();
+
+                if (reason.isEmpty) {
+                  Fluttertoast.showToast(
+                    msg: "Please enter a reason",
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
+                  );
+                  return;
+                }
+
+                data['status'] = 'rejected';
+                data['rejectionReason'] = reason;
+
+                try {
+                  await _firestore.collection('rejectedCollection').doc(postId).set(data);
+                  await _firestore.collection('Posts').doc(postId).delete();
+
+                  Fluttertoast.showToast(
+                    msg: "Ad rejected and deleted",
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
+                  );
+                  Navigator.of(context).pop(); // Close dialog
+                } catch (e) {
+                  Fluttertoast.showToast(
+                    msg: "Error deleting ad",
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
+                  );
+                }
+              },
+              child: const Text("Submit"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  void _approveData(String id, Map<String, dynamic> data) {
+    data['status'] = 'approved';
+    data['rejectionReason'] = '';
+
+    _firestore.collection('approvedCollection').doc(id).set(data).then((_) {
+      Fluttertoast.showToast(
+        msg: "Data approved successfully.",
+        backgroundColor: Colors.blue,
+        textColor: Colors.white,
+      );
+      _deleteDataFromPost(id);
+    }).catchError((error) {
+      print("Error approving data: $error");
+    });
+  }
+
   void _deleteData(String id) {
     _firestore.collection('approvedCollection').doc(id).delete();
   }
@@ -598,18 +732,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
     });
   }
 
-  void _approveData(String id, Map<String, dynamic> data) {
-    print("Approving data with ID: $id"); // Debugging line
-
-    _firestore.collection('approvedCollection').doc(id).set(data).then((_) {
-      print("Data approved successfully."); // Debugging line
-      Fluttertoast.showToast(msg: "Data approved successfully.",
-          backgroundColor: Colors.blue,textColor: Colors.white);
-     _deleteDataFromPost(id);
-    }).catchError((error) {
-      print("Error approving data: $error");
-    });
-  }
+  // void _approveData(String id, Map<String, dynamic> data) {
+  //   print("Approving data with ID: $id"); // Debugging line
+  //
+  //   _firestore.collection('approvedCollection').doc(id).set(data).then((_) {
+  //     print("Data approved successfully."); // Debugging line
+  //     Fluttertoast.showToast(msg: "Data approved successfully.",
+  //         backgroundColor: Colors.blue,textColor: Colors.white);
+  //    _deleteDataFromPost(id);
+  //   }).catchError((error) {
+  //     print("Error approving data: $error");
+  //   });
+  // }
 
 }
 
