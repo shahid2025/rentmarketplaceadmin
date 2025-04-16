@@ -133,6 +133,7 @@ class _ListOfAdsState extends State<ListOfAds> {
                                                                 return const Center(child: Text('Image failed to load', style: TextStyle(color: Colors.red)));
                                                               },
                                                             ),
+                                                            //
                                                             IconButton(
                                                               icon: const Icon(Icons.arrow_forward_ios, size: 35),
                                                               onPressed: currentIndex < images.length - 1
