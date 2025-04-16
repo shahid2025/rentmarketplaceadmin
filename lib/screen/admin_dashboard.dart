@@ -18,9 +18,16 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
+  var address = '';
   String _selectedType = 'Data';
   String _selectedTypeoflikedrawer = 'Ads Request';
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  Future<String> getUserName(String uid) async {
+    final userDoc = await FirebaseFirestore.instance.collection('Users').doc(
+        uid).get();
+    return userDoc.get(
+        'Name'); // Assuming the user name is stored in the 'name' field
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -155,19 +162,45 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 child: SingleChildScrollView(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(
-                                        width: MediaQuery.of(context).size.width * 0.62, // Take 70% of the screen width
-                                        child: const Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text('Title', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                                            Text('Description', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                                            Text('Images', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                                            Text('Actions', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                                          ],
-                                        ),
+                                    children: [SizedBox(
+                                      width: MediaQuery.of(context).size.width * 0.80,
+                                      child: Row(
+                                        children: [
+                                          SizedBox(
+                                            width: MediaQuery.of(context).size.width * 0.08,
+                                            child: const Text('Name', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                          ),
+                                          SizedBox(
+                                            width: MediaQuery.of(context).size.width * 0.08,
+                                            child: const Text('Title', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                          ),
+                                          SizedBox(
+                                            width: MediaQuery.of(context).size.width * 0.07,
+                                            child: const Text('Protection', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                          ),
+                                          SizedBox(
+                                            width: MediaQuery.of(context).size.width * 0.08,
+                                            child: const Text('Images', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                          ),
+                                          SizedBox(
+                                            width: MediaQuery.of(context).size.width * 0.07,
+                                            child: const Text('Price', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                          ),
+                                          SizedBox(
+                                            width: MediaQuery.of(context).size.width * 0.11,
+                                            child: Text('Address', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                          ),
+                                          SizedBox(
+                                            width: MediaQuery.of(context).size.width * 0.11,
+                                            child: Text('Description', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                          ),
+                                          const Expanded(
+                                            flex: 2,
+                                            child: Text('Actions', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                          ),
+                                        ],
                                       ),
+                                    ),
                                       const SizedBox(height: 5,),
                                       const Divider(),
                                       const SizedBox(height: 10,),
@@ -180,6 +213,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                               return const Center(child: CircularProgressIndicator());
                                             }
 
+
                                             var docs = snapshot.data!.docs;
 
                                             if (docs.isEmpty) {
@@ -190,141 +224,183 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                               itemCount: docs.length,
                                               itemBuilder: (context, index) {
                                                 var doc = docs[index];
-
                                                 List<dynamic> images = doc['Pictures_Url'] ?? [];
                                                 int currentIndex = 0;
 
-                                                return Padding(
-                                                  padding: const EdgeInsets.all(8.0),
-                                                  child: Row(
-                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                    children: [
-                                                      Text(doc['Title']),
-                                                      Text(doc['Description']),
-                                                      InkWell(
-                                                        onTap: () {
-                                                          showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return StatefulBuilder(
-                                                                builder: (context, setState) {
-                                                                  return AlertDialog(
-                                                                    content: Column(
-                                                                      mainAxisSize: MainAxisSize.min,
-                                                                      children: [
-                                                                        Row(
-                                                                          mainAxisAlignment: MainAxisAlignment.center,
-                                                                          children: [
-                                                                            IconButton(
-                                                                              icon: const Icon(Icons.arrow_back_ios, size: 35),
-                                                                              onPressed: currentIndex > 0
-                                                                                  ? () {
-                                                                                setState(() {
-                                                                                  currentIndex--;
-                                                                                });
-                                                                              }
-                                                                                  : null,
-                                                                            ),
-                                                                            Image.network(
-                                                                              images[currentIndex], // Directly using the URL
-                                                                              height: 300,
-                                                                              width: 500,
-                                                                              fit: BoxFit.contain,
-                                                                              loadingBuilder: (context, child, loadingProgress) {
-                                                                                print(images[currentIndex]);
-                                                                                if (loadingProgress == null) return child;
-                                                                                return const Center(child: CircularProgressIndicator());
-                                                                              },
-                                                                              errorBuilder: (context, error, stackTrace) {
-                                                                                return const Center(child: Text('Image failed to load', style: TextStyle(color: Colors.red)));
-                                                                              },
-                                                                            ),
+                                                return FutureBuilder(
+                                                  future: Future.wait([
+                                                  getUserName(doc['Uid']),
+                                                    UserData.getAddressFromCoordinates(doc['Location']),
+                                                ]),
 
-                                                                            IconButton(
-                                                                              icon: const Icon(Icons.arrow_forward_ios, size: 35),
-                                                                              onPressed: currentIndex < images.length - 1
-                                                                                  ? () {
-                                                                                setState(() {
-                                                                                  currentIndex++;
-                                                                                });
-                                                                              }
-                                                                                  : null,
-                                                                            ),
-                                                                          ],
+                                                  builder: (context, snapshot) {
+                                                    if (snapshot.hasData) {
+
+                                                      final userName = snapshot.data![0];
+                                                      final address = snapshot.data![1];
+                                                      return Padding(
+                                                        padding: const EdgeInsets.only(left: 2.0,right: 4,top: 4,bottom: 4),
+                                                        child: Row(
+                                                          crossAxisAlignment: CrossAxisAlignment.start ,
+                                                          //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                          children: [
+                                                            SizedBox(
+                                                              width: MediaQuery.of(context).size.width * 0.08,
+                                                              child: Text(userName, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
+                                                            ),
+                                                            SizedBox(
+                                                              width: MediaQuery.of(context).size.width * 0.08,
+                                                              child: Text(doc['Title'], style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
+                                                            ),
+                                                            SizedBox(
+                                                              width: MediaQuery.of(context).size.width * 0.065,
+                                                              child: Text(doc['Insurance'], style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
+                                                            ),
+                                                            InkWell(
+                                                              onTap: () {
+                                                                showDialog(
+                                                                  context: context,
+                                                                  builder: (context) {
+                                                                    return StatefulBuilder(
+                                                                      builder: (context, setState) {
+                                                                        return AlertDialog(
+                                                                          content: Column(
+                                                                            mainAxisSize: MainAxisSize.min,
+                                                                            children: [
+                                                                              Row(
+                                                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                                                children: [
+                                                                                  IconButton(
+                                                                                    icon: const Icon(Icons.arrow_back_ios, size: 35),
+                                                                                    onPressed: currentIndex > 0
+                                                                                        ? () {
+                                                                                      setState(() {
+                                                                                        currentIndex--;
+                                                                                      });
+                                                                                    }
+                                                                                        : null,
+                                                                                  ),
+                                                                                  Image.network(
+                                                                                    images[currentIndex], // Directly using the URL
+                                                                                    height: 300,
+                                                                                    width: 500,
+                                                                                    fit: BoxFit.contain,
+                                                                                    loadingBuilder: (context, child, loadingProgress) {
+                                                                                      print(images[currentIndex]);
+                                                                                      if (loadingProgress == null) return child;
+                                                                                      return const Center(child: CircularProgressIndicator());
+                                                                                    },
+                                                                                    errorBuilder: (context, error, stackTrace) {
+                                                                                      return const Center(child: Text('Image failed to load', style: TextStyle(color: Colors.red)));
+                                                                                    },
+                                                                                  ),
+
+                                                                                  IconButton(
+                                                                                    icon: const Icon(Icons.arrow_forward_ios, size: 35),
+                                                                                    onPressed: currentIndex < images.length - 1
+                                                                                        ? () {
+                                                                                      setState(() {
+                                                                                        currentIndex++;
+                                                                                      });
+                                                                                    }
+                                                                                        : null,
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                        );
+                                                                      },
+                                                                    );
+                                                                  },
+                                                                );
+                                                              },
+                                                              child: SizedBox(
+                                                                width: MediaQuery.of(context).size.width * 0.08,
+                                                                child: const Text(
+                                                                  'View Images',
+                                                                  style: TextStyle(fontSize: 12, color: Colors.blue),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            Padding(
+                                                              padding: const EdgeInsets.only(left: 3.0),
+                                                              child: SizedBox(
+                                                                  width: MediaQuery.of(context).size.width * 0.06,
+                                                                  child: Text(doc['Price'])),
+                                                            ),
+                                                            SizedBox(
+                                                              width: MediaQuery.of(context).size.width * 0.11,
+                                                                child: Text(address,style: const TextStyle(fontSize: 12),overflow: TextOverflow.ellipsis,)), // Display the address here
+                                                            SizedBox(
+                                                                width: MediaQuery.of(context).size.width * 0.11,
+                                                                child: Text(doc['Description'],style: const TextStyle(fontSize: 12),overflow: TextOverflow.ellipsis,)),
+                                                            Expanded(
+                                                              flex:3,
+
+                                                              child: Row(
+                                                                children: [
+                                                                  InkWell(
+                                                                    onTap: () {
+                                                                      var data = doc.data();
+
+                                                                      if (data is Map<String, dynamic>) {
+                                                                        _approveData(doc.id, data);
+                                                                      } else {
+                                                                        print("Data is not in the expected format");
+                                                                      }
+                                                                    },
+                                                                    child: Container(
+                                                                      alignment: Alignment.center,
+                                                                      height: 25,
+                                                                      width: 70,
+                                                                      decoration: BoxDecoration(
+                                                                        color: Colors.blue,
+                                                                        borderRadius: BorderRadius.circular(8),
+                                                                      ),
+                                                                      child: const Text(
+                                                                        'Approve',
+                                                                        style: TextStyle(
+                                                                          fontSize: 12,
+                                                                          color: Colors.white,
+                                                                          fontWeight: FontWeight.bold,
                                                                         ),
-                                                                      ],
+                                                                      ),
                                                                     ),
-                                                                  );
-                                                                },
-                                                              );
-                                                            },
-                                                          );
-                                                        },
-                                                        child: const Text(
-                                                          'View Images',
-                                                          style: TextStyle(fontSize: 16, color: Colors.blue),
+                                                                  ),
+                                                                  const SizedBox(width: 20,),
+                                                                  InkWell(
+                                                                    onTap: () {
+                                                                      _deleteDataFromPost(doc.id);
+                                                                    },
+                                                                    child: Container(
+                                                                      alignment: Alignment.center,
+                                                                      height: 25,
+                                                                      width: 70,
+                                                                      decoration: BoxDecoration(
+                                                                        color: Colors.red,
+                                                                        borderRadius: BorderRadius.circular(8),
+                                                                      ),
+                                                                      child: const Text(
+                                                                        'Delete',
+                                                                        style: TextStyle(
+                                                                          fontSize: 14,
+                                                                          color: Colors.white,
+                                                                          fontWeight: FontWeight.bold,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
                                                         ),
-                                                      ),
-
-                                                      Row(
-                                                        children: [
-                                                          InkWell(
-                                                            onTap: () {
-                                                              var data = doc.data();
-
-                                                              if (data is Map<String, dynamic>) {
-                                                                _approveData(doc.id, data);
-                                                              } else {
-                                                                print("Data is not in the expected format");
-                                                              }
-                                                              // Call _approveData and pass the document ID and data
-                                                           //   _approveData(doc.id, doc.data() as Map<String, dynamic>);
-                                                            },
-                                                            child: Container(
-                                                              alignment: Alignment.center,
-                                                              height: 40,
-                                                              width: 80,
-                                                              decoration: BoxDecoration(
-                                                                color: Colors.blue,
-                                                                borderRadius: BorderRadius.circular(8),
-                                                              ),
-                                                              child: const Text(
-                                                                'Approve',
-                                                                style: TextStyle(
-                                                                  fontSize: 14,
-                                                                  color: Colors.white,
-                                                                  fontWeight: FontWeight.bold,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(width: 20,),
-                                                          InkWell(
-                                                            onTap: () {
-                                                              _deleteDataFromPost(doc.id);
-                                                            },
-                                                            child: Container(
-                                                              alignment: Alignment.center,
-                                                              height: 40,
-                                                              width: 80,
-                                                              decoration: BoxDecoration(
-                                                                color: Colors.red,
-                                                                borderRadius: BorderRadius.circular(8),
-                                                              ),
-                                                              child: const Text(
-                                                                'Delete',
-                                                                style: TextStyle(
-                                                                  fontSize: 14,
-                                                                  color: Colors.white,
-                                                                  fontWeight: FontWeight.bold,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ],
-                                                  ),
+                                                      );
+                                                    } else {
+                                                      return const Center(child: CircularProgressIndicator());
+                                                    }
+                                                  },
                                                 );
                                               },
                                             );
@@ -545,7 +621,7 @@ class UserData extends StatelessWidget {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-   String googleMapsApiKey = "AIzaSyAr7RoP6zWVDZaW6CF-aFUU9xmaYn9-dbY";
+   static String googleMapsApiKey = "AIzaSyAr7RoP6zWVDZaW6CF-aFUU9xmaYn9-dbY";
 
   @override
   Widget build(BuildContext context) {
@@ -571,8 +647,8 @@ class UserData extends StatelessWidget {
                 // SizedBox(width: 1,),
                   Text('Description', style: TextStyle(
                       fontSize: 15, fontWeight: FontWeight.bold)),
-                  Text('Totals ads', style: TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.bold)),
+                  Text('Totals ads', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  Text('Images', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   Text('Ads', style: TextStyle(
                       fontSize: 15, fontWeight: FontWeight.bold)),
                   Text('Price', style: TextStyle(
@@ -608,6 +684,8 @@ class UserData extends StatelessWidget {
                   itemCount: docs.length,
                   itemBuilder: (context, index) {
                     var doc = docs[index];
+                    List<dynamic> images = doc['Pictures_Url'] ?? [];
+                    int currentIndex = 0;
 
                     return FutureBuilder(
                       future: Future.wait([
@@ -652,6 +730,73 @@ class UserData extends StatelessWidget {
                                 flex: 2,
                                 child: Text(docs.length.toString(), style: const TextStyle(fontSize: 12)),
                               ),
+                              InkWell(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return StatefulBuilder(
+                                        builder: (context, setState) {
+                                          return AlertDialog(
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    IconButton(
+                                                      icon: const Icon(Icons.arrow_back_ios, size: 35),
+                                                      onPressed: currentIndex > 0
+                                                          ? () {
+                                                        setState(() {
+                                                          currentIndex--;
+                                                        });
+                                                      }
+                                                          : null,
+                                                    ),
+                                                    Image.network(
+                                                      images[currentIndex], // Directly using the URL
+                                                      height: 300,
+                                                      width: 500,
+                                                      fit: BoxFit.contain,
+                                                      loadingBuilder: (context, child, loadingProgress) {
+                                                        print(images[currentIndex]);
+                                                        if (loadingProgress == null) return child;
+                                                        return const Center(child: CircularProgressIndicator());
+                                                      },
+                                                      errorBuilder: (context, error, stackTrace) {
+                                                        return const Center(child: Text('Image failed to load', style: TextStyle(color: Colors.red)));
+                                                      },
+                                                    ),
+
+                                                    IconButton(
+                                                      icon: const Icon(Icons.arrow_forward_ios, size: 35),
+                                                      onPressed: currentIndex < images.length - 1
+                                                          ? () {
+                                                        setState(() {
+                                                          currentIndex++;
+                                                        });
+                                                      }
+                                                          : null,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                                child: SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.08,
+                                  child: const Text(
+                                    'View Images',
+                                    style: TextStyle(fontSize: 12, color: Colors.blue),
+                                  ),
+                                ),
+                              ),
                               Expanded(
                                 flex: 1,
                                 child: GestureDetector(
@@ -669,7 +814,7 @@ class UserData extends StatelessWidget {
                                       ),
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: Text(doc['Title'], style: const TextStyle(fontSize: 15,fontWeight: FontWeight.bold,color: Colors.white)),
+                                        child: Text(doc['Title'], style: const TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: Colors.white)),
                                       )),
                                 ),
                               ),
@@ -683,7 +828,7 @@ class UserData extends StatelessWidget {
                                 flex: 2,
                                 child: Text(doc['Insurance'], style: const TextStyle(fontSize: 12)),
                               ),
-                              SizedBox(width: 10,)
+                              const SizedBox(width: 10,)
                             ],
                           )
 
@@ -711,7 +856,7 @@ class UserData extends StatelessWidget {
 
 
 
-  Future<String> getAddressFromCoordinates(Map<String, dynamic>? location) async {
+  static Future<String> getAddressFromCoordinates(Map<String, dynamic>? location) async {
     if (location == null) {
       return 'Location not available';
     }
