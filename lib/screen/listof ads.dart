@@ -90,6 +90,80 @@ class _ListOfAdsState extends State<ListOfAds> {
                                   _buildTableRow("Duration:", doc['Duration']),
                                   _buildTableRow("Description:", doc['Description']),
                             _buildTableRow('Price:',"\$${doc['Price']}"),
+                                  TableRow(
+                                    children: [
+                                      const Text("View Images",
+                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)), // Placeholder if no label
+                                      InkWell(
+                                        onTap: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return StatefulBuilder(
+                                                builder: (context, setState) {
+                                                  int currentIndex = 0;
+                                                  List<String> images = List<String>.from(doc['Pictures_Url'] ?? []);
+                                                  return AlertDialog(
+                                                    content: Column(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        Row(
+                                                          mainAxisAlignment: MainAxisAlignment.center,
+                                                          children: [
+                                                            IconButton(
+                                                              icon: const Icon(Icons.arrow_back_ios, size: 35),
+                                                              onPressed: currentIndex > 0
+                                                                  ? () {
+                                                                setState(() {
+                                                                  currentIndex--;
+                                                                });
+                                                              }
+                                                                  : null,
+                                                            ),
+                                                            Image.network(
+                                                              images[currentIndex],
+                                                              height: 300,
+                                                              width: 500,
+                                                              fit: BoxFit.contain,
+                                                              loadingBuilder: (context, child, loadingProgress) {
+                                                                if (loadingProgress == null) return child;
+                                                                return const Center(child: CircularProgressIndicator());
+                                                              },
+                                                              errorBuilder: (context, error, stackTrace) {
+                                                                return const Center(child: Text('Image failed to load', style: TextStyle(color: Colors.red)));
+                                                              },
+                                                            ),
+                                                            IconButton(
+                                                              icon: const Icon(Icons.arrow_forward_ios, size: 35),
+                                                              onPressed: currentIndex < images.length - 1
+                                                                  ? () {
+                                                                setState(() {
+                                                                  currentIndex++;
+                                                                });
+                                                              }
+                                                                  : null,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                            },
+                                          );
+                                        },
+                                        child: SizedBox(
+                                          width: MediaQuery.of(context).size.width * 0.08,
+                                          child: const Text(
+                                            'View Images',
+                                            style: TextStyle(fontSize: 12, color: Colors.blue),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
                                   _buildTableRow("Address:", address),
                                 ],
                               ),
