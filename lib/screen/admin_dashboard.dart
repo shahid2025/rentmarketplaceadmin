@@ -20,6 +20,7 @@ class AdminDashboard extends StatefulWidget {
 class _AdminDashboardState extends State<AdminDashboard> {
   var address = '';
   String _selectedType = 'Data';
+  String _selectedTypeUser = 'User Type';
   String _selectedTypeoflikedrawer = 'Ads Request';
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   Future<String> getUserName(String uid) async {
@@ -125,9 +126,31 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             ),
                           ],
                         ):
-                        const Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text('User Type', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)))
+                        Row(
+                          children: [
+                             GestureDetector(
+                               onTap:(){
+                                 setState(() {
+                                   _selectedTypeUser = 'User Type';
+                                 });
+                  },
+                               child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text('User Type', style: TextStyle(color: _selectedTypeUser == 'User Type' ? Colors.yellow : Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                             ),
+                            const SizedBox(width: 15,),
+                             GestureDetector(
+                               onTap: (){
+                                 setState(() {
+                                   _selectedTypeUser = 'unapproved ads';
+                                 });
+                               },
+                               child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text('unapproved ads', style: TextStyle(color:_selectedTypeUser == 'unapproved ads' ? Colors.yellow : Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                             ),
+                          ],
+                        )
                       ],
                     ),
                   ),
@@ -188,7 +211,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                             child: const Text('Price', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                                           ),
                                           SizedBox(
-                                            width: MediaQuery.of(context).size.width * 0.11,
+                                            width: MediaQuery.of(context).size.width * 0.16,
                                             child: const Text('Address', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                                           ),
                                           SizedBox(
@@ -196,7 +219,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                             child: const Text('Description', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                                           ),
                                           const Expanded(
-                                            flex: 2,
+                                            flex: 1,
                                             child: Text('Actions', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                                           ),
                                         ],
@@ -327,17 +350,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                             Padding(
                                                               padding: const EdgeInsets.only(left: 3.0),
                                                               child: SizedBox(
-                                                                  width: MediaQuery.of(context).size.width * 0.06,
+                                                                  width: MediaQuery.of(context).size.width * 0.05,
                                                                   child: Text(doc['Price'])),
                                                             ),
                                                             SizedBox(
-                                                              width: MediaQuery.of(context).size.width * 0.11,
-                                                                child: Text(address,style: const TextStyle(fontSize: 12),overflow: TextOverflow.ellipsis,)), // Display the address here
-                                                            SizedBox(
+                                                              width: MediaQuery.of(context).size.width * 0.18,
+                                                                child: Text(address,style: const TextStyle(fontSize: 10),overflow: TextOverflow.ellipsis,)), // Display the address here
+                                                            Container(
+                                                             // color:Colors.red,
                                                                 width: MediaQuery.of(context).size.width * 0.11,
-                                                                child: Text(doc['Description'],style: const TextStyle(fontSize: 12),overflow: TextOverflow.ellipsis,)),
+                                                                child: Text(doc['Description'],style: const TextStyle(fontSize: 10),overflow: TextOverflow.ellipsis,)),
                                                             Expanded(
-                                                              flex:3,
+                                                              flex:2,
 
                                                               child: Row(
                                                                 children: [
@@ -353,8 +377,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                                     },
                                                                     child: Container(
                                                                       alignment: Alignment.center,
-                                                                      height: 25,
-                                                                      width: 70,
+                                                                      height: 20,
+                                                                      width: 55,
                                                                       decoration: BoxDecoration(
                                                                         color: Colors.blue,
                                                                         borderRadius: BorderRadius.circular(8),
@@ -362,26 +386,26 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                                       child: const Text(
                                                                         'Approve',
                                                                         style: TextStyle(
-                                                                          fontSize: 12,
+                                                                          fontSize: 10,
                                                                           color: Colors.white,
                                                                           fontWeight: FontWeight.bold,
                                                                         ),
                                                                       ),
                                                                     ),
                                                                   ),
-                                                                  const SizedBox(width: 20,),
+                                                                  const SizedBox(width: 10,),
                                                                   InkWell(
                                                                     onTap: () {
                                                                       var data = doc.data();
                                                                       if (data is Map<String, dynamic>) {
-                                                                        _showDeleteReasonDialog(context, doc.id, data);
+                                                                        _showDeleteReasonDialog(context, doc.id, data,'Posts');
                                                                       }
                                                                      // _deleteDataFromPost(doc.id);
                                                                     },
                                                                     child: Container(
                                                                       alignment: Alignment.center,
-                                                                      height: 25,
-                                                                      width: 70,
+                                                                      height: 20,
+                                                                      width: 55,
                                                                       decoration: BoxDecoration(
                                                                         color: Colors.red,
                                                                         borderRadius: BorderRadius.circular(8),
@@ -389,7 +413,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                                       child: const Text(
                                                                         'Delete',
                                                                         style: TextStyle(
-                                                                          fontSize: 14,
+                                                                          fontSize: 10,
                                                                           color: Colors.white,
                                                                           fontWeight: FontWeight.bold,
                                                                         ),
@@ -450,12 +474,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                               ),
 
                                               SizedBox(
-                                                width: MediaQuery.of(context).size.width * 0.15,
+                                                width: MediaQuery.of(context).size.width * 0.14,
                                                 child: const Text('Description', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                                               ),
                                               SizedBox(
                                                 width: MediaQuery.of(context).size.width * 0.15,
                                                 child: const Text('Address', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                              ),
+                                              SizedBox(
+                                                width: MediaQuery.of(context).size.width * 0.07,
+                                                child: const Text('Delete', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                                               ),
                                             ],
                                           ),
@@ -589,12 +617,36 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                                     child: Text(doc['Price'])),
                                                               ),
                                                             SizedBox(
-                                                                  width: MediaQuery.of(context).size.width * 0.15,
+                                                                  width: MediaQuery.of(context).size.width * 0.14,
                                                                   child: Text(doc['Description'],style: const TextStyle(fontSize: 12),overflow: TextOverflow.ellipsis,)),
                                                               SizedBox(
                                                                   width: MediaQuery.of(context).size.width * 0.15,
                                                                   child: Text(address,style: const TextStyle(fontSize: 12),overflow: TextOverflow.ellipsis,)), // Display the address here
-
+                                                             SizedBox(width: 10,),
+                                                              GestureDetector(
+                                                                onTap:(){
+                                                                  var data = doc.data();
+                                                                  if (data is Map<String, dynamic>) {
+                                                                    _showDeleteReasonDialog(context, doc.id, data,'approvedCollection');
+                                                                  }
+                                                                },
+                                                                child: Container(
+                                                                  alignment: Alignment.center,
+                                                                 width: MediaQuery.of(context).size.width * 0.05,
+                                                                  decoration: BoxDecoration(
+                                                                    color: Colors.red,
+                                                                    borderRadius: BorderRadius.circular(8),
+                                                                  ),
+                                                                  child: const Text(
+                                                                    'Delete',
+                                                                    style: TextStyle(
+                                                                      fontSize: 10,
+                                                                      color: Colors.white,
+                                                                      fontWeight: FontWeight.bold,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
                                                             ],
                                                           ),
                                                         );
@@ -614,8 +666,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     ),
                                   ),
                                 ))
-                                :
-                         UserData(),
+                                :(_selectedTypeUser=='User Type'
+                            ? UserData() : unapprovedAds())
+                         //UserData(),
                           ),
                         )
                       ],
@@ -637,7 +690,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
     );
   }
-  void _showDeleteReasonDialog(BuildContext context, String postId, Map<String, dynamic> data) {
+  void _showDeleteReasonDialog(
+      BuildContext context, String postId, Map<String, dynamic> data,
+      String sourceCollection,
+      ) {
     final TextEditingController _reasonController = TextEditingController();
 
     showDialog(
@@ -678,7 +734,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
                 try {
                   await _firestore.collection('rejectedCollection').doc(postId).set(data);
-                  await _firestore.collection('Posts').doc(postId).delete();
+                  await _firestore.collection(sourceCollection).doc(postId).delete();
 
                   Fluttertoast.showToast(
                     msg: "Ad rejected and deleted",
@@ -750,19 +806,104 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
 
 
-class UserData extends StatelessWidget {
+class UserData extends StatefulWidget {
   UserData({super.key});
-
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
    static String googleMapsApiKey = "AIzaSyAr7RoP6zWVDZaW6CF-aFUU9xmaYn9-dbY";
 
+  @override
+  State<UserData> createState() => _UserDataState();
+
+  static Future<String> getAddressFromCoordinates(Map<String, dynamic>? location) async {
+    if (location == null) {
+      return 'Location not available';
+    }
+
+    final lat = location['Lat'];
+    final long = location['Long'];
+
+    if (lat == null || long == null) {
+      return 'Latitude or longitude not available';
+    }
+
+    try {
+      double latitude = lat is String ? double.parse(lat) : lat;
+      double longitude = long is String ? double.parse(long) : long;
+      String url = "https://maps.googleapis.com/maps/api/geocode/json?"
+          "latlng=$latitude,$longitude&key=$googleMapsApiKey";
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        if (data['status'] == 'OK' && data['results'].isNotEmpty) {
+          String address = data['results'][0]['formatted_address'];
+          return address;
+        } else {
+          return 'No address found for these coordinates';
+        }
+      } else {
+        return 'Error fetching address';
+      }
+    } catch (e) {
+      return 'Error getting address';
+    }
+  }
+
+}
+
+class _UserDataState extends State<UserData> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  String? selectedUserUid;
+
+  String searchQuery = "";
+  TextEditingController _searchController = TextEditingController();
+  List<DocumentSnapshot> allUsers = [];
+  List<DocumentSnapshot> filteredUsers = [];
+
+
+
+  List<DocumentSnapshot> filteredDocs = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUsers();
+    _searchController.addListener(() {
+      _filterUsers(_searchController.text);
+    });
+  }
+  List<DocumentSnapshot> _filterDocs(List<DocumentSnapshot> docs, String query) {
+    return docs.where((doc) {
+      final title = doc['Title'].toString().toLowerCase();
+      return title.contains(query.toLowerCase());
+    }).toList();
+  }
+
+  void fetchUsers() async {
+    var snapshot = await FirebaseFirestore.instance.collection('Users').orderBy('Name').get();
+    setState(() {
+      allUsers = snapshot.docs;
+      filteredUsers = allUsers; // Initial load
+    });
+  }
+
+  void _filterUsers(String query) {
+    setState(() {
+      filteredUsers = allUsers.where((user) {
+        final name = user['Name'].toString().toLowerCase();
+        return name.contains(query.toLowerCase());
+      }).toList();
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
           SizedBox(
             width: MediaQuery
                 .of(context)
@@ -793,9 +934,28 @@ class UserData extends StatelessWidget {
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: SizedBox(
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.26,
+              height:   MediaQuery.of(context).size.height * 0.07,
+              child: TextFormField(
+                controller: _searchController,
+                decoration: const InputDecoration(
+                  hintText: 'Search',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.search),
+                ),
+              ),
+            ),
+          ),
           const SizedBox(height: 5,),
           const Divider(),
           const SizedBox(height: 10,),
+
           SizedBox(
             height: MediaQuery
                 .of(context)
@@ -807,16 +967,18 @@ class UserData extends StatelessWidget {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
+                var docs = _filterDocs(snapshot.data!.docs, _searchController.text);
 
-                var docs = snapshot.data!.docs;
+              //  var docs = snapshot.data!.docs;
 
                 if (docs.isEmpty) {
                   return const Center(child: Text('No data available'));
                 }
 
                 return ListView.builder(
-                  itemCount: docs.length,
+                  itemCount:docs.length,
                   itemBuilder: (context, index) {
+                   // var doc = filteredDocs[index];
                     var doc = docs[index];
                     List<dynamic> images = doc['Pictures_Url'] ?? [];
                     int currentIndex = 0;
@@ -824,7 +986,7 @@ class UserData extends StatelessWidget {
                     return FutureBuilder(
                       future: Future.wait([
                         getUserName(doc['Uid']),
-                        getAddressFromCoordinates(doc['Location']),
+                        UserData.getAddressFromCoordinates(doc['Location']),
                       ]),
                       builder: (context, snapshot) {
                         if (snapshot.hasError) {
@@ -985,47 +1147,309 @@ class UserData extends StatelessWidget {
     return userDoc.get(
         'Name'); // Assuming the user name is stored in the 'name' field
   }
-
-
-
-
-
-  static Future<String> getAddressFromCoordinates(Map<String, dynamic>? location) async {
-    if (location == null) {
-      return 'Location not available';
-    }
-
-    final lat = location['Lat'];
-    final long = location['Long'];
-
-    if (lat == null || long == null) {
-      return 'Latitude or longitude not available';
-    }
-
-    try {
-      double latitude = lat is String ? double.parse(lat) : lat;
-      double longitude = long is String ? double.parse(long) : long;
-      String url = "https://maps.googleapis.com/maps/api/geocode/json?"
-          "latlng=$latitude,$longitude&key=$googleMapsApiKey";
-      final response = await http.get(Uri.parse(url));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-
-        if (data['status'] == 'OK' && data['results'].isNotEmpty) {
-          String address = data['results'][0]['formatted_address'];
-          return address;
-        } else {
-          return 'No address found for these coordinates';
-        }
-      } else {
-        return 'Error fetching address';
-      }
-    } catch (e) {
-      return 'Error getting address';
-    }
-  }
-
 }
 
 
+class unapprovedAds extends StatefulWidget {
+  const unapprovedAds({super.key});
+
+  @override
+  State<unapprovedAds> createState() => _unapprovedAdsState();
+}
+
+class _unapprovedAdsState extends State<unapprovedAds> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  String? selectedUserUid;
+
+  String searchQuery = "";
+  TextEditingController _searchController = TextEditingController();
+  List<DocumentSnapshot> allUsers = [];
+  List<DocumentSnapshot> filteredUsers = [];
+
+
+
+  List<DocumentSnapshot> filteredDocs = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUsers();
+    _searchController.addListener(() {
+      _filterUsers(_searchController.text);
+    });
+  }
+  List<DocumentSnapshot> _filterDocs(List<DocumentSnapshot> docs, String query) {
+    return docs.where((doc) {
+      final title = doc['Title'].toString().toLowerCase();
+      return title.contains(query.toLowerCase());
+    }).toList();
+  }
+
+  void fetchUsers() async {
+    var snapshot = await FirebaseFirestore.instance.collection('Users').orderBy('Name').get();
+    setState(() {
+      allUsers = snapshot.docs;
+      filteredUsers = allUsers; // Initial load
+    });
+  }
+
+  void _filterUsers(String query) {
+    setState(() {
+      filteredUsers = allUsers.where((user) {
+        final name = user['Name'].toString().toLowerCase();
+        return name.contains(query.toLowerCase());
+      }).toList();
+    });
+  }
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          SizedBox(
+            width: MediaQuery
+                .of(context)
+                .size
+                .width * 0.72, // Take 70% of the screen width
+            child: const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Name', style: TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.bold)),
+                  // SizedBox(width: .2,),
+                  Text('Address', style: TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.bold)),
+                  // SizedBox(width: 1,),
+                  Text('Description', style: TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.bold)),
+                  Text('Totals ads', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  Text('Images', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  Text('Ads', style: TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.bold)),
+                  Text('Price', style: TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.bold)),
+                  Text('Protection plan', style: TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: SizedBox(
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.26,
+              height:   MediaQuery.of(context).size.height * 0.07,
+              child: TextFormField(
+                controller: _searchController,
+                decoration: const InputDecoration(
+                  hintText: 'Search',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.search),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 5,),
+          const Divider(),
+          const SizedBox(height: 10,),
+
+          SizedBox(
+            height: MediaQuery
+                .of(context)
+                .size
+                .height * 0.8, // Take 40% of the screen height
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _firestore.collection('rejectedCollection').snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                var docs = _filterDocs(snapshot.data!.docs, _searchController.text);
+
+                //  var docs = snapshot.data!.docs;
+
+                if (docs.isEmpty) {
+                  return const Center(child: Text('No data available'));
+                }
+
+                return ListView.builder(
+                  itemCount:docs.length,
+                  itemBuilder: (context, index) {
+                    // var doc = filteredDocs[index];
+                    var doc = docs[index];
+                    List<dynamic> images = doc['Pictures_Url'] ?? [];
+                    int currentIndex = 0;
+
+                    return FutureBuilder(
+                      future: Future.wait([
+                        getUserName(doc['Uid']),
+                        UserData.getAddressFromCoordinates(doc['Location']),
+                      ]),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        }
+                        if (!snapshot.hasData) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        final userName = snapshot.data![0];
+                        final address = snapshot.data![1];
+
+                        return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  flex: 2, // Adjust flex values for better spacing
+                                  child: Text(userName, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
+                                ),
+                                Expanded(
+                                  flex: 2, // More space for address
+                                  child: Text(
+                                    address,
+                                    style: const TextStyle(fontSize: 10),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 30,),
+
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(doc['Description'], style: const TextStyle(fontSize: 12)),
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(docs.length.toString(), style: const TextStyle(fontSize: 12)),
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return StatefulBuilder(
+                                          builder: (context, setState) {
+                                            return AlertDialog(
+                                              content: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
+                                                      IconButton(
+                                                        icon: const Icon(Icons.arrow_back_ios, size: 35),
+                                                        onPressed: currentIndex > 0
+                                                            ? () {
+                                                          setState(() {
+                                                            currentIndex--;
+                                                          });
+                                                        }
+                                                            : null,
+                                                      ),
+                                                      Image.network(
+                                                        images[currentIndex], // Directly using the URL
+                                                        height: 300,
+                                                        width: 500,
+                                                        fit: BoxFit.contain,
+                                                        loadingBuilder: (context, child, loadingProgress) {
+                                                          print(images[currentIndex]);
+                                                          if (loadingProgress == null) return child;
+                                                          return const Center(child: CircularProgressIndicator());
+                                                        },
+                                                        errorBuilder: (context, error, stackTrace) {
+                                                          return const Center(child: Text('Image failed to load', style: TextStyle(color: Colors.red)));
+                                                        },
+                                                      ),
+
+                                                      IconButton(
+                                                        icon: const Icon(Icons.arrow_forward_ios, size: 35),
+                                                        onPressed: currentIndex < images.length - 1
+                                                            ? () {
+                                                          setState(() {
+                                                            currentIndex++;
+                                                          });
+                                                        }
+                                                            : null,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: SizedBox(
+                                    width: MediaQuery.of(context).size.width * 0.08,
+                                    child: const Text(
+                                      'View Images',
+                                      style: TextStyle(fontSize: 12, color: Colors.blue),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: GestureDetector(
+                                    onTap: (){
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => ListOfAds(uid: doc['Uid'])),
+                                      );
+                                    },
+                                    child: Container(
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(12)
+                                          ,color: Colors.blue,
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(doc['Title'], style: const TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: Colors.white)),
+                                        )),
+                                  ),
+                                ),
+                                SizedBox(width: MediaQuery.of(context).size.height*.15,),
+
+                                Expanded(
+                                  flex: 2,
+                                  child: Text('\$${doc['Price']}', style: const TextStyle(fontSize: 12)),
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(doc['Insurance'], style: const TextStyle(fontSize: 12)),
+                                ),
+                                const SizedBox(width: 10,)
+                              ],
+                            )
+
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<String> getUserName(String uid) async {
+    final userDoc = await FirebaseFirestore.instance.collection('Users').doc(
+        uid).get();
+    return userDoc.get(
+        'Name'); // Assuming the user name is stored in the 'name' field
+  }
+}
