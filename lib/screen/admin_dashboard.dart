@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:geocoding/geocoding.dart';
+import 'package:rentmarketplaceadmin/screen/file%20claim%20data.dart';
 import 'package:rentmarketplaceadmin/screen/listof%20ads.dart';
 
 
@@ -72,6 +73,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
                           },
                           child: buildMenuItem(Icons.person, "Users", _selectedTypeoflikedrawer == 'Users' ? Colors.yellow : Colors.white,)),
+                      GestureDetector(
+                          onTap: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => FileClaimData()),
+                            );
+    // setState(() {
+    // _selectedTypeoflikedrawer = 'File Claim';
+    // });
+    // print('anything');
+
+                          },
+                          child: buildMenuItem(Icons.person, "File Claim", _selectedTypeoflikedrawer == 'File Claim' ? Colors.yellow : Colors.white,)),
                     ],
                   ),
                 ),
