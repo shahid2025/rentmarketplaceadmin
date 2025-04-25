@@ -879,6 +879,17 @@ class _UserDataState extends State<UserData> {
 
 
   List<DocumentSnapshot> filteredDocs = [];
+  Future<List<DocumentSnapshot>>? docsFuture;
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   fetchUsers();
+  //   _searchController.addListener(() {
+  //     setState(() {
+  //       docsFuture = _filterDocs(snapshot.data!.docs, _searchController.text);
+  //     });
+  //   });
+  // }
 
   @override
   void initState() {
@@ -888,11 +899,24 @@ class _UserDataState extends State<UserData> {
       _filterUsers(_searchController.text);
     });
   }
-  List<DocumentSnapshot> _filterDocs(List<DocumentSnapshot> docs, String query) {
-    return docs.where((doc) {
+  Future<List<DocumentSnapshot>> _filterDocs(List<DocumentSnapshot> docs, String query) async {
+    List<DocumentSnapshot> filteredDocs = [];
+
+    for (var doc in docs) {
       final title = doc['Title'].toString().toLowerCase();
-      return title.contains(query.toLowerCase());
-    }).toList();
+      final protectionPlan = doc['Insurance'].toString().toLowerCase();
+
+      final userName = await getUserName(doc['Uid']); // Assuming getUserName is a function that fetches the username
+      final userNameLower = userName.toLowerCase();
+
+      if (title.contains(query.toLowerCase()) ||
+          userNameLower.contains(query.toLowerCase()) ||
+          protectionPlan.contains(query.toLowerCase())) {
+        filteredDocs.add(doc);
+      }
+    }
+
+    return filteredDocs;
   }
 
   void fetchUsers() async {
@@ -981,171 +1005,185 @@ class _UserDataState extends State<UserData> {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                var docs = _filterDocs(snapshot.data!.docs, _searchController.text);
+              //   var docs = _filterDocs(snapshot.data!.docs, _searchController.text);
+              //
+              // //  var docs = snapshot.data!.docs;
+              //
+              //   if (docs.isEmpty) {
+              //     return const Center(child: Text('No data available'));
+              //   }
 
-              //  var docs = snapshot.data!.docs;
+                return FutureBuilder(
+                    future: _filterDocs(snapshot.data!.docs, _searchController.text),
+                    builder: (context, futureSnapshot) {
+                      if (!futureSnapshot.hasData) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-                if (docs.isEmpty) {
-                  return const Center(child: Text('No data available'));
-                }
+                      var docs = futureSnapshot.data!;
 
-                return ListView.builder(
-                  itemCount:docs.length,
-                  itemBuilder: (context, index) {
-                   // var doc = filteredDocs[index];
-                    var doc = docs[index];
-                    List<dynamic> images = doc['Pictures_Url'] ?? [];
-                    int currentIndex = 0;
+                      if (docs.isEmpty) {
+                        return const Center(child: Text('No data available'));
+                      }
+                    return ListView.builder(
+                      itemCount:docs.length,
+                      itemBuilder: (context, index) {
+                       // var doc = filteredDocs[index];
+                        var doc = docs[index];
+                        List<dynamic> images = doc['Pictures_Url'] ?? [];
+                        int currentIndex = 0;
 
-                    return FutureBuilder(
-                      future: Future.wait([
-                        getUserName(doc['Uid']),
-                        UserData.getAddressFromCoordinates(doc['Location']),
-                      ]),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        }
-                        if (!snapshot.hasData) {
-                          return const Center(child: CircularProgressIndicator());
-                        }
-                        final userName = snapshot.data![0];
-                        final address = snapshot.data![1];
+                        return FutureBuilder(
+                          future: Future.wait([
+                            getUserName(doc['Uid']),
+                            UserData.getAddressFromCoordinates(doc['Location']),
+                          ]),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            }
+                            if (!snapshot.hasData) {
+                              return const Center(child: CircularProgressIndicator());
+                            }
+                            final userName = snapshot.data![0];
+                            final address = snapshot.data![1];
 
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                flex: 2, // Adjust flex values for better spacing
-                                child: Text(userName, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
-                              ),
-                              Expanded(
-                                flex: 2, // More space for address
-                                child: Text(
-                                  address,
-                                  style: const TextStyle(fontSize: 10),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const SizedBox(width: 30,),
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    flex: 2, // Adjust flex values for better spacing
+                                    child: Text(userName, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
+                                  ),
+                                  Expanded(
+                                    flex: 2, // More space for address
+                                    child: Text(
+                                      address,
+                                      style: const TextStyle(fontSize: 10),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 30,),
 
-                              Expanded(
-                                flex: 2,
-                                child: Text(doc['Description'], style: const TextStyle(fontSize: 12)),
-                              ),
-                              Expanded(
-                                flex: 2,
-                                child: Text(docs.length.toString(), style: const TextStyle(fontSize: 12)),
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return StatefulBuilder(
-                                        builder: (context, setState) {
-                                          return AlertDialog(
-                                            content: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(doc['Description'], style: const TextStyle(fontSize: 12)),
+                                  ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(docs.length.toString(), style: const TextStyle(fontSize: 12)),
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return StatefulBuilder(
+                                            builder: (context, setState) {
+                                              return AlertDialog(
+                                                content: Column(
+                                                  mainAxisSize: MainAxisSize.min,
                                                   children: [
-                                                    IconButton(
-                                                      icon: const Icon(Icons.arrow_back_ios, size: 35),
-                                                      onPressed: currentIndex > 0
-                                                          ? () {
-                                                        setState(() {
-                                                          currentIndex--;
-                                                        });
-                                                      }
-                                                          : null,
-                                                    ),
-                                                    Image.network(
-                                                      images[currentIndex], // Directly using the URL
-                                                      height: 300,
-                                                      width: 500,
-                                                      fit: BoxFit.contain,
-                                                      loadingBuilder: (context, child, loadingProgress) {
-                                                        print(images[currentIndex]);
-                                                        if (loadingProgress == null) return child;
-                                                        return const Center(child: CircularProgressIndicator());
-                                                      },
-                                                      errorBuilder: (context, error, stackTrace) {
-                                                        return const Center(child: Text('Image failed to load', style: TextStyle(color: Colors.red)));
-                                                      },
-                                                    ),
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                      children: [
+                                                        IconButton(
+                                                          icon: const Icon(Icons.arrow_back_ios, size: 35),
+                                                          onPressed: currentIndex > 0
+                                                              ? () {
+                                                            setState(() {
+                                                              currentIndex--;
+                                                            });
+                                                          }
+                                                              : null,
+                                                        ),
+                                                        Image.network(
+                                                          images[currentIndex], // Directly using the URL
+                                                          height: 300,
+                                                          width: 500,
+                                                          fit: BoxFit.contain,
+                                                          loadingBuilder: (context, child, loadingProgress) {
+                                                            print(images[currentIndex]);
+                                                            if (loadingProgress == null) return child;
+                                                            return const Center(child: CircularProgressIndicator());
+                                                          },
+                                                          errorBuilder: (context, error, stackTrace) {
+                                                            return const Center(child: Text('Image failed to load', style: TextStyle(color: Colors.red)));
+                                                          },
+                                                        ),
 
-                                                    IconButton(
-                                                      icon: const Icon(Icons.arrow_forward_ios, size: 35),
-                                                      onPressed: currentIndex < images.length - 1
-                                                          ? () {
-                                                        setState(() {
-                                                          currentIndex++;
-                                                        });
-                                                      }
-                                                          : null,
+                                                        IconButton(
+                                                          icon: const Icon(Icons.arrow_forward_ios, size: 35),
+                                                          onPressed: currentIndex < images.length - 1
+                                                              ? () {
+                                                            setState(() {
+                                                              currentIndex++;
+                                                            });
+                                                          }
+                                                              : null,
+                                                        ),
+                                                      ],
                                                     ),
                                                   ],
                                                 ),
-                                              ],
-                                            ),
+                                              );
+                                            },
                                           );
                                         },
                                       );
                                     },
-                                  );
-                                },
-                                child: SizedBox(
-                                  width: MediaQuery.of(context).size.width * 0.08,
-                                  child: const Text(
-                                    'View Images',
-                                    style: TextStyle(fontSize: 12, color: Colors.blue),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: GestureDetector(
-                                  onTap: (){
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => ListOfAds(uid: doc['Uid'])),
-                                    );
-                                  },
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12)
-                                            ,color: Colors.blue,
+                                    child: SizedBox(
+                                      width: MediaQuery.of(context).size.width * 0.08,
+                                      child: const Text(
+                                        'View Images',
+                                        style: TextStyle(fontSize: 12, color: Colors.blue),
                                       ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(doc['Title'], style: const TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: Colors.white)),
-                                      )),
-                                ),
-                              ),
-                                SizedBox(width: MediaQuery.of(context).size.height*.15,),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 1,
+                                    child: GestureDetector(
+                                      onTap: (){
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => ListOfAds(uid: doc['Uid'])),
+                                        );
+                                      },
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(12)
+                                                ,color: Colors.blue,
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(doc['Title'], style: const TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: Colors.white)),
+                                          )),
+                                    ),
+                                  ),
+                                    SizedBox(width: MediaQuery.of(context).size.height*.15,),
 
-                              Expanded(
-                                flex: 2,
-                                child: Text('\$${doc['Price']}', style: const TextStyle(fontSize: 12)),
-                              ),
-                              Expanded(
-                                flex: 2,
-                                child: Text(doc['Insurance'], style: const TextStyle(fontSize: 12)),
-                              ),
-                              const SizedBox(width: 10,)
-                            ],
-                          )
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text('\$${doc['Price']}', style: const TextStyle(fontSize: 12)),
+                                  ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(doc['Insurance'], style: const TextStyle(fontSize: 12)),
+                                  ),
+                                  const SizedBox(width: 10,)
+                                ],
+                              )
 
+                            );
+                          },
                         );
                       },
                     );
-                  },
+                  }
                 );
               },
             ),
