@@ -258,7 +258,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                               return const Center(child: Text('No data available'));
                                             }
 
-                                            return ListView.builder(
+                                            return   ListView.builder(
                                               itemCount: docs.length,
                                               itemBuilder: (context, index) {
                                                 var doc = docs[index];
@@ -267,20 +267,22 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
                                                 return FutureBuilder(
                                                   future: Future.wait([
-                                                  getUserName(doc['Uid']),
+                                                    getUserName(doc['Uid']),
                                                     UserData.getAddressFromCoordinates(doc['Location']),
-                                                ]),
-
+                                                  ]),
                                                   builder: (context, snapshot) {
                                                     if (snapshot.hasData) {
-
                                                       final userName = snapshot.data![0];
                                                       final address = snapshot.data![1];
+
+                                                      // Safe access to IsPaymentApproved
+                                                      final data = doc.data() as Map<String, dynamic>;
+                                                      bool isPaymentApproved = data.containsKey('IsPaymentApproved') ? data['IsPaymentApproved'] : false;
+
                                                       return Padding(
-                                                        padding: const EdgeInsets.only(left: 2.0,right: 4,top: 4,bottom: 4),
+                                                        padding: const EdgeInsets.all(4.0),
                                                         child: Row(
-                                                          crossAxisAlignment: CrossAxisAlignment.start ,
-                                                          //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
                                                           children: [
                                                             SizedBox(
                                                               width: MediaQuery.of(context).size.width * 0.08,
@@ -294,6 +296,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                               width: MediaQuery.of(context).size.width * 0.065,
                                                               child: Text(doc['Insurance'], style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
                                                             ),
+
+                                                            // View Images
                                                             InkWell(
                                                               onTap: () {
                                                                 showDialog(
@@ -319,12 +323,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                                                         : null,
                                                                                   ),
                                                                                   Image.network(
-                                                                                    images[currentIndex], // Directly using the URL
+                                                                                    images[currentIndex],
                                                                                     height: 300,
                                                                                     width: 500,
                                                                                     fit: BoxFit.contain,
                                                                                     loadingBuilder: (context, child, loadingProgress) {
-                                                                                      print(images[currentIndex]);
                                                                                       if (loadingProgress == null) return child;
                                                                                       return const Center(child: CircularProgressIndicator());
                                                                                     },
@@ -332,7 +335,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                                                       return const Center(child: Text('Image failed to load', style: TextStyle(color: Colors.red)));
                                                                                     },
                                                                                   ),
-
                                                                                   IconButton(
                                                                                     icon: const Icon(Icons.arrow_forward_ios, size: 35),
                                                                                     onPressed: currentIndex < images.length - 1
@@ -361,76 +363,95 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                                 ),
                                                               ),
                                                             ),
+
                                                             Padding(
                                                               padding: const EdgeInsets.only(left: 3.0),
                                                               child: SizedBox(
-                                                                  width: MediaQuery.of(context).size.width * 0.05,
-                                                                  child: Text(doc['Price'])),
+                                                                width: MediaQuery.of(context).size.width * 0.05,
+                                                                child: Text(doc['Price']),
+                                                              ),
                                                             ),
-                                                            SizedBox(
-                                                              width: MediaQuery.of(context).size.width * 0.18,
-                                                                child: Text(address,style: const TextStyle(fontSize: 10),overflow: TextOverflow.ellipsis,)), // Display the address here
-                                                            Container(
-                                                             // color:Colors.red,
-                                                                width: MediaQuery.of(context).size.width * 0.11,
-                                                                child: Text(doc['Description'],style: const TextStyle(fontSize: 10),overflow: TextOverflow.ellipsis,)),
-                                                            Expanded(
-                                                              flex:2,
 
+                                                            SizedBox(
+                                                              width: MediaQuery.of(context).size.width * 0.15,
+                                                              child: Text(address, style: const TextStyle(fontSize: 10), overflow: TextOverflow.ellipsis),
+                                                            ),
+
+                                                            Container(
+                                                              alignment:Alignment.center,
+                                                              width: MediaQuery.of(context).size.width * 0.10,
+                                                              child: Text(doc['Description'], style: const TextStyle(fontSize: 10), overflow: TextOverflow.ellipsis),
+                                                            ),
+
+                                                            Expanded(
+                                                              flex: 3,
                                                               child: Row(
                                                                 children: [
-                                                                  InkWell(
-                                                                    onTap: () {
-                                                                      var data = doc.data();
-
-                                                                      if (data is Map<String, dynamic>) {
-                                                                        _approveData(doc.id, data);
-                                                                      } else {
-                                                                        print("Data is not in the expected format");
-                                                                      }
-                                                                    },
-                                                                    child: Container(
-                                                                      alignment: Alignment.center,
-                                                                      height: 20,
-                                                                      width: 55,
-                                                                      decoration: BoxDecoration(
-                                                                        color: Colors.blue,
-                                                                        borderRadius: BorderRadius.circular(8),
-                                                                      ),
-                                                                      child: const Text(
-                                                                        'Approve',
-                                                                        style: TextStyle(
-                                                                          fontSize: 10,
-                                                                          color: Colors.white,
-                                                                          fontWeight: FontWeight.bold,
+                                                                  // Approve if no insurance
+                                                                    InkWell(
+                                                                      onTap: () {
+                                                                        if (data is Map<String, dynamic>) {
+                                                                          _approveData(doc.id, data);
+                                                                        }
+                                                                      },
+                                                                      child: Container(
+                                                                        alignment: Alignment.center,
+                                                                        height: 20,
+                                                                        width: 50,
+                                                                        decoration: BoxDecoration(
+                                                                          color: Colors.blue,
+                                                                          borderRadius: BorderRadius.circular(8),
+                                                                        ),
+                                                                        child: const Text(
+                                                                          'Approve',
+                                                                          style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
                                                                         ),
                                                                       ),
                                                                     ),
-                                                                  ),
-                                                                  const SizedBox(width: 10,),
+SizedBox(width: 2,),
+
+                                                                  // Payment verification if insurance is yes and not approved
+                                                                  if (doc['Insurance'] == 'Yes' && !isPaymentApproved) ...[
+                                                                    InkWell(
+                                                                      onTap: () {
+                                                                        _approvePayment(doc.id);
+                                                                      },
+                                                                      child: Container(
+                                                                        alignment: Alignment.center,
+                                                                        height: 20,
+                                                                        width: 70,
+                                                                        decoration: BoxDecoration(
+                                                                          color: Colors.green,
+                                                                          borderRadius: BorderRadius.circular(8),
+                                                                        ),
+                                                                        child: const Text(
+                                                                          'Payment Verify',
+                                                                          style: TextStyle(fontSize: 9, color: Colors.white, fontWeight: FontWeight.bold),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+
+                                                                 const SizedBox(width: 2),
+
+                                                                  // Delete button
                                                                   InkWell(
                                                                     onTap: () {
-                                                                      var data = doc.data();
                                                                       if (data is Map<String, dynamic>) {
-                                                                        _showDeleteReasonDialog(context, doc.id, data,'Posts');
+                                                                        _showDeleteReasonDialog(context, doc.id, data, 'Posts');
                                                                       }
-                                                                     // _deleteDataFromPost(doc.id);
                                                                     },
                                                                     child: Container(
                                                                       alignment: Alignment.center,
                                                                       height: 20,
-                                                                      width: 55,
+                                                                      width: 47,
                                                                       decoration: BoxDecoration(
                                                                         color: Colors.red,
                                                                         borderRadius: BorderRadius.circular(8),
                                                                       ),
                                                                       child: const Text(
                                                                         'Delete',
-                                                                        style: TextStyle(
-                                                                          fontSize: 10,
-                                                                          color: Colors.white,
-                                                                          fontWeight: FontWeight.bold,
-                                                                        ),
+                                                                        style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
                                                                       ),
                                                                     ),
                                                                   ),
@@ -447,6 +468,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                                 );
                                               },
                                             );
+
+
                                           },
                                         ),
                                       )
@@ -774,16 +797,27 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
 
   void _approveData(String id, Map<String, dynamic> data) {
+    if (data['Insurance'] == 'Yes') {
+      data['paymentStatusMessage'] = 'Your payment is remaining';
+
+      _firestore.collection('pendingPaymentVerificationCollection').doc(id).set(data).then((_) {
+        Fluttertoast.showToast(
+          msg: "Data moved to pending payment verification.",
+          backgroundColor: Colors.orange,
+          textColor: Colors.white,
+        );
+      }).catchError((error) {
+        print("Error moving data to pending payment verification: $error");
+      });
+      return;
+    }
+
+    // Proceed with approval if insurance is not "Yes"
     data['status'] = 'approved';
-    data['rejectionReason'] = '';
+    data['rejectionReason'] = ''; // Clear rejection reason if it is exists
 
     _firestore.collection('approvedCollection').doc(id).set(data).then((_) {
-      Fluttertoast.showToast(
-        msg: "Data approved successfully.",
-        backgroundColor: Colors.blue,
-        textColor: Colors.white,
-      );
-      _deleteDataFromPost(id);
+      print("Data successfully approved and moved to approvedCollection!");
     }).catchError((error) {
       print("Error approving data: $error");
     });
@@ -801,19 +835,35 @@ class _AdminDashboardState extends State<AdminDashboard> {
       print("Error deleting data: $error");
     });
   }
+  Future<void> _approvePayment(String postId) async {
+    try {
+      await   _firestore.collection('Posts').doc(postId).update({
+        'IsPaymentApproved': true,  // Set the payment status to true
+        'Status': 'Approved',      // Mark the post as approved
+      });
 
-  // void _approveData(String id, Map<String, dynamic> data) {
-  //   print("Approving data with ID: $id"); // Debugging line
-  //
-  //   _firestore.collection('approvedCollection').doc(id).set(data).then((_) {
-  //     print("Data approved successfully."); // Debugging line
-  //     Fluttertoast.showToast(msg: "Data approved successfully.",
-  //         backgroundColor: Colors.blue,textColor: Colors.white);
-  //    _deleteDataFromPost(id);
-  //   }).catchError((error) {
-  //     print("Error approving data: $error");
-  //   });
-  // }
+      Fluttertoast.showToast(
+        msg: "Payment Verified, Post is now live",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Error verifying payment: $e",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    }
+  }
+
+
+
 
 }
 
