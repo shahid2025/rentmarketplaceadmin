@@ -166,6 +166,10 @@ class _ListOfAdsState extends State<ListOfAds> {
                                   ),
 
                                   _buildTableRow("Address:", address),
+                                  _buildContainerRow('Active'),
+
+                                  _buildContainerRow('Delete'),
+                                  _buildContainerRow('Suspended'),
                                 ],
                               ),
 
@@ -202,6 +206,33 @@ class _ListOfAdsState extends State<ListOfAds> {
   Future<String> getUserName(String uid) async {
     final userDoc = await FirebaseFirestore.instance.collection('Users').doc(uid).get();
     return userDoc.get('Name');
+  }
+  TableRow _buildContainerRow(String label) {
+    return TableRow(
+      children: [
+        Column(
+          children: [
+            Container(
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(12)
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Text(
+                  label,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,color: Colors.white),
+                ),
+              ),
+            ),
+            SizedBox(height: 10,)
+          ],
+        ),
+        SizedBox()
+
+      ],
+    );
   }
   TableRow _buildTableRow(String label, String value) {
     return TableRow(

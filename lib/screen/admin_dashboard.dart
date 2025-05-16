@@ -10,6 +10,8 @@ import 'package:http/http.dart' as http;
 import 'package:geocoding/geocoding.dart';
 import 'package:rentmarketplaceadmin/screen/file%20claim%20data.dart';
 import 'package:rentmarketplaceadmin/screen/listof%20ads.dart';
+import 'package:rentmarketplaceadmin/screen/renters.dart';
+import 'package:rentmarketplaceadmin/screen/status%20screen.dart';
 
 
 
@@ -86,6 +88,20 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
                           },
                           child: buildMenuItem(Icons.person, "File Claim", _selectedTypeoflikedrawer == 'File Claim' ? Colors.yellow : Colors.white,)),
+                      GestureDetector(
+                          onTap: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => Renters()),
+                            );},
+                          child: buildMenuItem(Icons.remove_shopping_cart, "Renters", _selectedTypeoflikedrawer == 'Renters' ? Colors.yellow : Colors.white,)),
+                      GestureDetector(
+                          onTap: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => PaymentStatusScreen()),
+                            );},
+                          child: buildMenuItem(Icons.dashboard, "PaymentStatusScreen", _selectedTypeoflikedrawer == 'PaymentStatusScreen' ? Colors.yellow : Colors.white,)),
                     ],
                   ),
                 ),
