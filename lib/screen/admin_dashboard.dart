@@ -99,7 +99,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           onTap: (){
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => PaymentStatusScreen()),
+                              MaterialPageRoute(builder: (context) => AdminPaymentDashboard()),
                             );},
                           child: buildMenuItem(Icons.dashboard, "PaymentStatusScreen", _selectedTypeoflikedrawer == 'PaymentStatusScreen' ? Colors.yellow : Colors.white,)),
                     ],

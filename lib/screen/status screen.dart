@@ -1,83 +1,103 @@
-
-
-import 'dart:html';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-class PaymentStatusScreen extends StatefulWidget {
-  const PaymentStatusScreen({Key? key}) : super(key: key);
+class AdminPaymentDashboard extends StatefulWidget {
+  const AdminPaymentDashboard({Key? key}) : super(key: key);
 
   @override
-  _PaymentStatusScreenState createState() => _PaymentStatusScreenState();
+  _AdminPaymentDashboardState createState() => _AdminPaymentDashboardState();
 }
 
-class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
+class _AdminPaymentDashboardState extends State<AdminPaymentDashboard> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool _isProcessing = false;
+  final TextEditingController _disputeController = TextEditingController();
 
-  Future<void> _releasePaymentNow(String paymentIntentId) async {
+  Future<void> _updatePaymentStatus(
+      String paymentId,
+      String status, {
+        String? disputeReason,
+      }) async {
     setState(() => _isProcessing = true);
     try {
-      await _firestore.collection('held_payments')
-          .doc(paymentIntentId)
-          .update({
-        'status': 'released',
-        'releasedAt': Timestamp.now(),
-        'releasedManually': true,
-      });
+      final updateData = {
+        'status': status,
+        'updatedAt': Timestamp.now(),
+        'updatedBy': FirebaseAuth.instance.currentUser?.uid,
+      };
+
+      if (status == 'disputed' && disputeReason != null) {
+        updateData['disputeReason'] = disputeReason;
+        updateData['disputeReportedAt'] = Timestamp.now();
+      }
+
+      if (status == 'released') {
+        updateData['releasedAt'] = Timestamp.now();
+      }
+
+      await _firestore.collection('held_payments').doc(paymentId).update(updateData);
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Payment released successfully!')),
+        SnackBar(content: Text('Payment status updated to $status')),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: \${e.toString()}')),
+        SnackBar(content: Text('Error: ${e.toString()}')),
       );
     } finally {
       setState(() => _isProcessing = false);
     }
   }
 
-  Widget _buildPaymentCard(String docId, Map<String, dynamic> payment) {
-    final status = payment['status'];
-   // final isAdmin = FirebaseAuth.instance.currentUser?.uid == 'admin_uid';
-    final amount = (payment['amount'] / 100).toStringAsFixed(2);
-    final currency = payment['currency'];
-
-    return Card(
-      margin: const EdgeInsets.all(8),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Amount: $amount $currency", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            Text("Status: ${status.toUpperCase()}", style: TextStyle(color: _getStatusColor(status))),
-            const SizedBox(height: 8),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () => _releasePaymentNow(docId),
-                    child: const Text("Release"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: const Text("Hold"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: const Text("Dispute"),
-                  ),
-                ],
+  Future<void> _showDisputeDialog(String paymentId) async {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Mark as Disputed"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("Enter dispute reason:"),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _disputeController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: "Reason for dispute...",
+                ),
+                maxLines: 3,
               ),
             ],
-
-        ),
-      ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (_disputeController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please enter dispute reason')),
+                  );
+                  return;
+                }
+                _updatePaymentStatus(
+                  paymentId,
+                  'disputed',
+                  disputeReason: _disputeController.text,
+                );
+                Navigator.pop(context);
+                _disputeController.clear();
+              },
+              child: const Text("Submit"),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -90,96 +110,124 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
     }
   }
 
+  Widget _buildStatusBadge(String status, String paymentId) {
+    return GestureDetector(
+      onTap: () {
+        if (status == 'hold') {
+          _updatePaymentStatus(paymentId, 'released');
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: _getStatusColor(status),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          status.toUpperCase(),
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _disputeController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          centerTitle: true,
-          title: const Text("Admin Payment Dashboard")),
+        centerTitle: true,
+        title: const Text("Admin Payment Dashboard"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => setState(() {}),
+          ),
+        ],
+      ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore.collection('held_payments').snapshots(),
+        stream: _firestore.collection('held_payments')
+            .orderBy('holdStartTime', descending: true)
+            .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
 
           return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+            scrollDirection: Axis.vertical,
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(16.0),
               child: DataTable(
-                headingRowColor: MaterialStateProperty.all(Colors.blue),  // Background color for header row
+                columnSpacing: 20,
+                horizontalMargin: 10,
+                headingRowColor: MaterialStateProperty.all(Colors.blue.shade700),
                 headingTextStyle: const TextStyle(
-                  color: Colors.white,           // Text color for header
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
-               // headingRowColor: MaterialStateProperty.resolveWith((states) => Colors.grey[200]),
                 columns: const [
-                  DataColumn(label: Text("Name", style: TextStyle(fontWeight: FontWeight.bold))),
-                  DataColumn(label: Text("Amount", style: TextStyle(fontWeight: FontWeight.bold))),
-                  DataColumn(label: Text("Currency", style: TextStyle(fontWeight: FontWeight.bold))),
-                  DataColumn(label: Text("Status", style: TextStyle(fontWeight: FontWeight.bold))),
-                  DataColumn(label: Text("Actions", style: TextStyle(fontWeight: FontWeight.bold))),
+                  DataColumn(label: Text("ID")),
+                  DataColumn(label: Text("Renter")),
+                  DataColumn(label: Text("Owner")),
+                  DataColumn(label: Text("Amount"), numeric: true),
+                  DataColumn(label: Text("Currency")),
+                  DataColumn(label: Text("Held Since")),
+                  DataColumn(label: Text("Status")),
+                  DataColumn(label: Text("Actions")),
                 ],
                 rows: snapshot.data!.docs.map((doc) {
                   final payment = doc.data() as Map<String, dynamic>;
                   final status = payment['status'];
                   final amount = (payment['amount'] / 100).toStringAsFixed(2);
                   final currency = payment['currency'];
-             print('doc${doc.id}');
+                  final holdStart = (payment['holdStartTime'] as Timestamp).toDate();
+                  final renterUid = payment['renterUid'] ?? 'Unknown';
+                  final ownerUid = payment['ownerUid'] ?? 'Unknown';
 
-                  return DataRow(cells: [
-                    DataCell(Text(payment['renterUid'] ?? 'Unknown')),
-                    DataCell(Text(amount)),
-                    DataCell(Text(currency.toUpperCase())),
-                    DataCell(
-                      GestureDetector(
-                        onTap: (){
-                          print('click');
-                          _releasePaymentNow(doc.id);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: _getStatusColor(status),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            status.toUpperCase(),
-                            style: const TextStyle(color: Colors.white),
-                          ),
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(doc.id.substring(0, 6))),
+                      DataCell(Text(renterUid.substring(0, 6))),
+                      DataCell(Text(ownerUid.substring(0, 6))),
+                      DataCell(Text(amount)),
+                      DataCell(Text(currency.toUpperCase())),
+                      DataCell(Text(DateFormat('MMM d, y').format(holdStart))),
+                      DataCell(_buildStatusBadge(status, doc.id)),
+                      DataCell(
+                        Row(
+                          children: [
+                            if (status == 'hold') ...[
+                              IconButton(
+                                icon: const Icon(Icons.check, color: Colors.green),
+                                onPressed: () => _updatePaymentStatus(doc.id, 'released'),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.pause, color: Colors.orange),
+                                onPressed: () => _updatePaymentStatus(doc.id, 'hold'),
+                              ),
+                            ],
+                            IconButton(
+                              icon: const Icon(Icons.warning, color: Colors.red),
+                              onPressed: () => _showDisputeDialog(doc.id),
+                            ),
+                            if (status == 'disputed') ...[
+                              const SizedBox(width: 4),
+                              IconButton(
+                                icon: const Icon(Icons.check, color: Colors.green),
+                                onPressed: () => _updatePaymentStatus(doc.id, 'released'),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
-                    ),
-                    DataCell(
-                      Row(
-                        children: [
-                          if (status == 'hold') ...[
-                            ElevatedButton(
-                              onPressed: (){
-                                print('click');
-                                _releasePaymentNow(doc.id);
-                                },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              ),
-                              child: const Text("Release"),
-                            ),
-                            const SizedBox(width: 8),
-                          ],
-                          Text(
-                            status == 'released' ? "Completed" : "Not Completed",
-                            style: TextStyle(
-                              color: status == 'released' ? Colors.green : Colors.red,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                  ]);
+                    ],
+                  );
                 }).toList(),
               ),
             ),
@@ -189,4 +237,3 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
     );
   }
 }
-
