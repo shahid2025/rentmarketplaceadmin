@@ -813,27 +813,34 @@ SizedBox(width: 2,),
 
 
   void _approveData(String id, Map<String, dynamic> data) {
-    if (data['Insurance'] == 'Yes') {
-      data['paymentStatusMessage'] = 'Your payment is remaining';
+    // if (data['Insurance'] == 'Yes') {
+    //   data['paymentStatusMessage'] = 'Your payment is remaining';
+    //
+    //   _firestore.collection('pendingPaymentVerificationCollection').doc(id).set(data).then((_) {
+    //     Fluttertoast.showToast(
+    //       msg: "Data moved to pending payment verification.",
+    //       backgroundColor: Colors.orange,
+    //       textColor: Colors.white,
+    //     );
+    //   }).catchError((error) {
+    //     print("Error moving data to pending payment verification: $error");
+    //   });
+    //   return;
+    // }
+    //
+    // // Proceed with approval if insurance is not "Yes"
+    // data['status'] = 'approved';
+    // data['rejectionReason'] = ''; // Clear rejection reason if it is exists
 
-      _firestore.collection('pendingPaymentVerificationCollection').doc(id).set(data).then((_) {
-        Fluttertoast.showToast(
-          msg: "Data moved to pending payment verification.",
-          backgroundColor: Colors.orange,
-          textColor: Colors.white,
-        );
-      }).catchError((error) {
-        print("Error moving data to pending payment verification: $error");
-      });
-      return;
-    }
-
-    // Proceed with approval if insurance is not "Yes"
-    data['status'] = 'approved';
-    data['rejectionReason'] = ''; // Clear rejection reason if it is exists
-
-    _firestore.collection('approvedCollection').doc(id).set(data).then((_) {
+    _firestore.collection('approvedCollection').doc(id).set(data, SetOptions(merge: true)).then((_) {
       print("Data successfully approved and moved to approvedCollection!");
+      Fluttertoast.showToast(
+                msg: "Data moved to pending payment verification.",
+                backgroundColor: Colors.orange,
+                textColor: Colors.white,
+              );
+      // ✅ Delete from Posts after moving
+      _deleteDataFromPost(id);
     }).catchError((error) {
       print("Error approving data: $error");
     });
