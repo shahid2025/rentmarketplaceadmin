@@ -45,8 +45,9 @@ class _FileClaimDataState extends State<FileClaimData> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Filed Claims",style: TextStyle(fontWeight: FontWeight.w800,fontSize: 20),),
+      appBar: AppBar(automaticallyImplyLeading: false,
+        backgroundColor: Colors.blue,
+        title: const Text("Filed Claims",style: TextStyle(fontWeight: FontWeight.w800,fontSize: 20,color: Colors.white,),),
         centerTitle: true,
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -89,6 +90,10 @@ class _FileClaimDataState extends State<FileClaimData> {
                         DataColumn(label: Text("Police Filed", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15))),
                         DataColumn(label: Text("Claim Date", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15))),
                         DataColumn(label: Text("Images", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15))),
+                        DataColumn(label: Text("Approved", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15))),
+                        DataColumn(label: Text("Denied", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15))),
+                        DataColumn(label: Text("Request Info", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15))),
+                        DataColumn(label: Text("Mark as Paid", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15))),
                       ],
                       rows: List.generate(claims.length, (index) {
                         final doc = claims[index];
@@ -148,6 +153,239 @@ class _FileClaimDataState extends State<FileClaimData> {
                                   ),
                                 ),
                               ),
+                            ),
+                            DataCell(
+                                InkWell(
+                                  onTap: () async {
+                                    // Open text field for admin to enter approval message
+                                    final approvalMessageController = TextEditingController();
+                                    final result = await showDialog(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: Text('Enter Approval Message'),
+                                        content: TextField(
+                                          controller: approvalMessageController,
+                                          decoration: InputDecoration(hintText: 'Enter message'),
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.of(context).pop(false),
+                                            child: Text('Cancel'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () => Navigator.of(context).pop(true),
+                                            child: Text('Submit'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+
+                                    if (result != null && result) {
+                                      final claimRef = FirebaseFirestore.instance.collection('claims').doc(doc.id);
+                                      await claimRef.update({'status': 'approved'});
+
+                                      // Add claim history
+                                      final claimHistoryRef = FirebaseFirestore.instance.collection('claims').doc(doc.id).collection('claimHistory').doc();
+                                      await claimHistoryRef.set({
+                                        'action': 'approved',
+                                        'timestamp': FieldValue.serverTimestamp(),
+                                        'adminId': 'adminId', // Replace with actual admin ID
+                                        'adminName': 'Admin Name', // Replace with actual admin name
+                                        'message': approvalMessageController.text,
+                                      });
+                                    }
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: const Text(
+                                      "Approved",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                            ),
+                            DataCell(
+                              // Denied claim
+                                InkWell(
+                                  onTap: () async {
+                                    // Open text field for admin to enter denial message
+                                    final denialMessageController = TextEditingController();
+                                    final result = await showDialog(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: Text('Enter Denial Message'),
+                                        content: TextField(
+                                          controller: denialMessageController,
+                                          decoration: InputDecoration(hintText: 'Enter message'),
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.of(context).pop(false),
+                                            child: Text('Cancel'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () => Navigator.of(context).pop(true),
+                                            child: Text('Submit'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+
+                                    if (result != null && result) {
+                                      final claimRef = FirebaseFirestore.instance.collection('claims').doc(doc.id);
+                                      await claimRef.update({'status': 'denied'});
+
+                                      // Add claim history
+                                      final claimHistoryRef = FirebaseFirestore.instance.collection('claims').doc(doc.id).collection('claimHistory').doc();
+                                      await claimHistoryRef.set({
+                                        'action': 'denied',
+                                        'timestamp': FieldValue.serverTimestamp(),
+                                        'adminId': 'adminId', // Replace with actual admin ID
+                                        'adminName': 'Admin Name', // Replace with actual admin name
+                                        'message': denialMessageController.text,
+                                      });
+                                    }
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: const Text(
+                                      "Denied",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                )
+
+                            ),
+                            DataCell(
+                              // Request info
+                                InkWell(
+                                  onTap: () async {
+                                    // Open text field for admin to enter request message
+                                    final requestMessageController = TextEditingController();
+                                    final result = await showDialog(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: Text('Enter Request Message'),
+                                        content: TextField(
+                                          controller: requestMessageController,
+                                          decoration: InputDecoration(hintText: 'Enter message'),
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.of(context).pop(false),
+                                            child: Text('Cancel'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () => Navigator.of(context).pop(true),
+                                            child: Text('Submit'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+
+                                    if (result != null && result) {
+                                      // Add claim history
+                                      final claimHistoryRef = FirebaseFirestore.instance.collection('claims').doc(doc.id).collection('claimHistory').doc();
+                                      await claimHistoryRef.set({
+                                        'action': 'requestInfo',
+                                        'timestamp': FieldValue.serverTimestamp(),
+                                        'adminId': 'adminId', // Replace with actual admin ID
+                                        'adminName': 'Admin Name', // Replace with actual admin name
+                                        'message': requestMessageController.text,
+                                      });
+                                    }
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: const Text(
+                                      "Request Info",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                            ),
+                            DataCell(
+                              // Mark as paid
+                                InkWell(
+                                  onTap: () async {
+                                    // Open text field for admin to enter payment message
+                                    final paymentMessageController = TextEditingController();
+                                    final result = await showDialog(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: Text('Enter Payment Message'),
+                                        content: TextField(
+                                          controller: paymentMessageController,
+                                          decoration: InputDecoration(hintText: 'Enter message'),
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.of(context).pop(false),
+                                            child: Text('Cancel'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () => Navigator.of(context).pop(true),
+                                            child: Text('Submit'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+
+                                    if (result != null && result) {
+                                      final claimRef = FirebaseFirestore.instance.collection('claims').doc(doc.id);
+                                      await claimRef.update({'status': 'paid'});
+
+                                      // Add claim history
+                                      final claimHistoryRef = FirebaseFirestore.instance.collection('claims').doc(doc.id).collection('claimHistory').doc();
+                                      await claimHistoryRef.set({
+                                        'action': 'paid',
+                                        'timestamp': FieldValue.serverTimestamp(),
+                                        'adminId': 'adminId', // Replace with actual admin ID
+                                        'adminName': 'Admin Name', // Replace with actual admin name
+                                        'message': paymentMessageController.text,
+                                      });
+                                    }
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: const Text(
+                                      "Mark as Paid",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                )
                             ),
                           ],
                         );
