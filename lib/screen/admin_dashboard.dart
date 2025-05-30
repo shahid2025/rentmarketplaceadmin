@@ -8,10 +8,13 @@ import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:geocoding/geocoding.dart';
+import 'package:rentmarketplaceadmin/screen/alluser%20data.dart';
 import 'package:rentmarketplaceadmin/screen/file%20claim%20data.dart';
 import 'package:rentmarketplaceadmin/screen/listof%20ads.dart';
 import 'package:rentmarketplaceadmin/screen/renters.dart';
 import 'package:rentmarketplaceadmin/screen/status%20screen.dart';
+
+import 'analytics/analytics dashboard.dart';
 
 
 
@@ -102,6 +105,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               MaterialPageRoute(builder: (context) => AdminPaymentDashboard()),
                             );},
                           child: buildMenuItem(Icons.dashboard, "PaymentStatusScreen", _selectedTypeoflikedrawer == 'PaymentStatusScreen' ? Colors.yellow : Colors.white,)),
+                      GestureDetector(
+                          onTap: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => DashboardScreen()),
+                            );},
+                          child: buildMenuItem(Icons.dashboard, "DashboardScreen", _selectedTypeoflikedrawer == 'DashboardScreen' ? Colors.yellow : Colors.white,)),
                     ],
                   ),
                 ),
@@ -161,12 +171,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                              GestureDetector(
                                onTap:(){
                                  setState(() {
-                                   _selectedTypeUser = 'User Type';
+                                   _selectedTypeUser = 'Owner';
                                  });
                   },
                                child: Align(
                                   alignment: Alignment.centerLeft,
-                                  child: Text('User Type', style: TextStyle(color: _selectedTypeUser == 'User Type' ? Colors.yellow : Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                                  child: Text('Owner', style: TextStyle(color: _selectedTypeUser == 'Owner' ? Colors.yellow : Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
                              ),
                             const SizedBox(width: 15,),
                              GestureDetector(
@@ -178,6 +188,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text('unapproved ads', style: TextStyle(color:_selectedTypeUser == 'unapproved ads' ? Colors.yellow : Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
+                             ),
+                            const SizedBox(width: 15,),
+                             GestureDetector(
+                               onTap: (){
+                                 setState(() {
+                                   _selectedTypeUser = 'All Users';
+                                 });
+                               },
+                               child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text('All Users', style: TextStyle(color:_selectedTypeUser == 'All Users' ? Colors.yellow : Colors.white, fontWeight: FontWeight.bold, fontSize: 15))),
                              ),
                           ],
                         )
@@ -191,11 +212,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Data Table',
-                          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 16),
+                        // const Text(
+                        //   'Data Table',
+                        //   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                        // ),
+                        // const SizedBox(height: 16),
                         Expanded(
                           child: Card(
                             elevation: 5, // Add a subtle shadow
@@ -494,233 +515,161 @@ SizedBox(width: 2,),
                                 ),
                               ),
                             ):
-                                SizedBox(
-                                  height: 200,
-                                  width:double.maxFinite,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      children: [
-                                        SizedBox(
-                                          width: MediaQuery.of(context).size.width * 0.80,
-                                          child: Row(
-                                            children: [
-                                              SizedBox(
-                                                width: MediaQuery.of(context).size.width * 0.08,
-                                                child: const Text('Name', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                                              ),
-                                              SizedBox(
-                                                width: MediaQuery.of(context).size.width * 0.08,
-                                                child: const Text('Title', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                                              ),
-                                              SizedBox(
-                                                width: MediaQuery.of(context).size.width * 0.07,
-                                                child: const Text('Protection', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                                              ),
-                                              SizedBox(
-                                                width: MediaQuery.of(context).size.width * 0.08,
-                                                child: const Text('Images', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                                              ),
-                                              SizedBox(
-                                                width: MediaQuery.of(context).size.width * 0.07,
-                                                child: const Text('Price', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                                              ),
+                            SizedBox(
+                              height: 600, // Adjust as needed
+                              child: StreamBuilder<QuerySnapshot>(
+                                stream: _firestore.collection('approvedCollection').snapshots(),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) {
+                                    return const Center(child: CircularProgressIndicator());
+                                  }
 
-                                              SizedBox(
-                                                width: MediaQuery.of(context).size.width * 0.14,
-                                                child: const Text('Description', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                                              ),
-                                              SizedBox(
-                                                width: MediaQuery.of(context).size.width * 0.15,
-                                                child: const Text('Address', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                                              ),
-                                              SizedBox(
-                                                width: MediaQuery.of(context).size.width * 0.07,
-                                                child: const Text('Delete', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        const SizedBox(height: 5,),
-                                        const Divider(),
-                                        const SizedBox(height: 10,),
-                                        SizedBox(
-                                          height: MediaQuery.of(context).size.height * 0.5,
-                                          child: StreamBuilder<QuerySnapshot>(
-                                            stream: _firestore.collection('approvedCollection').snapshots(),
-                                            builder: (context, snapshot) {
-                                              if (!snapshot.hasData) {
-                                                return const Center(child: CircularProgressIndicator());
-                                              }
+                                  final docs = snapshot.data!.docs;
 
-                                              var docs = snapshot.data!.docs;
+                                  if (docs.isEmpty) {
+                                    return const Center(child: Text('No data available'));
+                                  }
 
-                                              if (docs.isEmpty) {
-                                                return const Center(child: Text('No data available'));
-                                              }
+                                  return SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: DataTable(
+                                      columns: const [
+                                        DataColumn(label: Text('Name')),
+                                        DataColumn(label: Text('Title')),
+                                        DataColumn(label: Text('Protection')),
+                                        DataColumn(label: Text('Images')),
+                                        DataColumn(label: Text('Price')),
+                                        DataColumn(label: Text('Market Value')),
+                                        DataColumn(label: Text('Description')),
+                                        DataColumn(label: Text('Delete')),
+                                        DataColumn(label: Text('Location')),
+                                      ],
+                                      rows: docs.map((doc) {
+                                        final images = doc['Pictures_Url'] ?? [];
 
-                                              return ListView.builder(
-                                                itemCount: docs.length,
-                                                itemBuilder: (context, index) {
-                                                  var doc = docs[index];
-
-                                                  List<dynamic> images = doc['Pictures_Url'] ?? [];
+                                        return DataRow(
+                                          cells: [
+                                            DataCell(FutureBuilder(
+                                              future: getUserName(doc['Uid']),
+                                              builder: (context, snapshot) {
+                                                return Text(snapshot.data?.toString() ?? 'Loading...');
+                                              },
+                                            )),
+                                            DataCell(Text(doc['Title'].toString())),
+                                            DataCell(Text(doc['Insurance'].toString())),
+                                            DataCell(
+                                              InkWell(
+                                                onTap: () {
                                                   int currentIndex = 0;
-
-                                                  return FutureBuilder(
-                                                    future: Future.wait([
-                                                      getUserName(doc['Uid']),
-                                                      UserData.getAddressFromCoordinates(doc['Location']),
-                                                    ]),
-
-                                                    builder: (context, snapshot) {
-                                                      if (snapshot.hasData) {
-
-                                                        final userName = snapshot.data![0];
-                                                        final address = snapshot.data![1];
-                                                        return Padding(
-                                                          padding: const EdgeInsets.only(left: 2.0,right: 4,top: 4,bottom: 4),
-                                                          child: Row(
-                                                            crossAxisAlignment: CrossAxisAlignment.start ,
-                                                            //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                            children: [
-                                                              SizedBox(
-                                                                width: MediaQuery.of(context).size.width * 0.08,
-                                                                child: Text(userName, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
-                                                              ),
-                                                              SizedBox(
-                                                                width: MediaQuery.of(context).size.width * 0.08,
-                                                                child: Text(doc['Title'], style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
-                                                              ),
-                                                              SizedBox(
-                                                                width: MediaQuery.of(context).size.width * 0.065,
-                                                                child: Text(doc['Insurance'], style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
-                                                              ),
-                                                              InkWell(
-                                                                onTap: () {
-                                                                  showDialog(
-                                                                    context: context,
-                                                                    builder: (context) {
-                                                                      return StatefulBuilder(
-                                                                        builder: (context, setState) {
-                                                                          return AlertDialog(
-                                                                            content: Column(
-                                                                              mainAxisSize: MainAxisSize.min,
-                                                                              children: [
-                                                                                Row(
-                                                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                                                  children: [
-                                                                                    IconButton(
-                                                                                      icon: const Icon(Icons.arrow_back_ios, size: 35),
-                                                                                      onPressed: currentIndex > 0
-                                                                                          ? () {
-                                                                                        setState(() {
-                                                                                          currentIndex--;
-                                                                                        });
-                                                                                      }
-                                                                                          : null,
-                                                                                    ),
-                                                                                    Image.network(
-                                                                                      images[currentIndex], // Directly using the URL
-                                                                                      height: 300,
-                                                                                      width: 500,
-                                                                                      fit: BoxFit.contain,
-                                                                                      loadingBuilder: (context, child, loadingProgress) {
-                                                                                        print(images[currentIndex]);
-                                                                                        if (loadingProgress == null) return child;
-                                                                                        return const Center(child: CircularProgressIndicator());
-                                                                                      },
-                                                                                      errorBuilder: (context, error, stackTrace) {
-                                                                                        return const Center(child: Text('Image failed to load', style: TextStyle(color: Colors.red)));
-                                                                                      },
-                                                                                    ),
-
-                                                                                    IconButton(
-                                                                                      icon: const Icon(Icons.arrow_forward_ios, size: 35),
-                                                                                      onPressed: currentIndex < images.length - 1
-                                                                                          ? () {
-                                                                                        setState(() {
-                                                                                          currentIndex++;
-                                                                                        });
-                                                                                      }
-                                                                                          : null,
-                                                                                    ),
-                                                                                  ],
-                                                                                ),
-                                                                              ],
-                                                                            ),
-                                                                          );
-                                                                        },
-                                                                      );
-                                                                    },
-                                                                  );
-                                                                },
-                                                                child: SizedBox(
-                                                                  width: MediaQuery.of(context).size.width * 0.08,
-                                                                  child: const Text(
-                                                                    'View Images',
-                                                                    style: TextStyle(fontSize: 12, color: Colors.blue),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Padding(
-                                                                padding: const EdgeInsets.only(left: 3.0),
-                                                                child: SizedBox(
-                                                                    width: MediaQuery.of(context).size.width * 0.06,
-                                                                    child: Text(doc['Price'])),
-                                                              ),
-                                                            SizedBox(
-                                                                  width: MediaQuery.of(context).size.width * 0.14,
-                                                                  child: Text(doc['Description'],style: const TextStyle(fontSize: 12),overflow: TextOverflow.ellipsis,)),
-                                                              SizedBox(
-                                                                  width: MediaQuery.of(context).size.width * 0.15,
-                                                                  child: Text(address,style: const TextStyle(fontSize: 12),overflow: TextOverflow.ellipsis,)), // Display the address here
-                                                             SizedBox(width: 10,),
-                                                              GestureDetector(
-                                                                onTap:(){
-                                                                  var data = doc.data();
-                                                                  if (data is Map<String, dynamic>) {
-                                                                    _showDeleteReasonDialog(context, doc.id, data,'approvedCollection');
-                                                                  }
-                                                                },
-                                                                child: Container(
-                                                                  alignment: Alignment.center,
-                                                                 width: MediaQuery.of(context).size.width * 0.05,
-                                                                  decoration: BoxDecoration(
-                                                                    color: Colors.red,
-                                                                    borderRadius: BorderRadius.circular(8),
-                                                                  ),
-                                                                  child: const Text(
-                                                                    'Delete',
-                                                                    style: TextStyle(
-                                                                      fontSize: 10,
-                                                                      color: Colors.white,
-                                                                      fontWeight: FontWeight.bold,
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return StatefulBuilder(
+                                                        builder: (context, setState) {
+                                                          return AlertDialog(
+                                                            content: Column(
+                                                              mainAxisSize: MainAxisSize.min,
+                                                              children: [
+                                                                Row(
+                                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                                  children: [
+                                                                    IconButton(
+                                                                      icon: const Icon(Icons.arrow_back_ios),
+                                                                      onPressed: currentIndex > 0
+                                                                          ? () => setState(() => currentIndex--)
+                                                                          : null,
                                                                     ),
-                                                                  ),
+                                                                    Image.network(
+                                                                      images[currentIndex],
+                                                                      height: 300,
+                                                                      width: 500,
+                                                                      fit: BoxFit.contain,
+                                                                      loadingBuilder: (context, child, progress) =>
+                                                                      progress == null ? child : const CircularProgressIndicator(),
+                                                                      errorBuilder: (context, error, stackTrace) =>
+                                                                      const Text('Image failed to load', style: TextStyle(color: Colors.red)),
+                                                                    ),
+                                                                    IconButton(
+                                                                      icon: const Icon(Icons.arrow_forward_ios),
+                                                                      onPressed: currentIndex < images.length - 1
+                                                                          ? () => setState(() => currentIndex++)
+                                                                          : null,
+                                                                    ),
+                                                                  ],
                                                                 ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        );
-                                                      } else {
-                                                        return const Center(child: CircularProgressIndicator());
-                                                      }
+                                                              ],
+                                                            ),
+                                                          );
+                                                        },
+                                                      );
                                                     },
                                                   );
                                                 },
-                                              );
-                                            },
-                                          ),
-                                        )
-
-
-                                      ],
+                                                child: const Text(
+                                                  'View Images',
+                                                  style: TextStyle(
+                                                    color: Colors.blue,
+                                                    decoration: TextDecoration.underline,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            DataCell(Text('\$${doc['Price']}/${doc['Duration']}')),
+                                            DataCell(Text(doc['Market Value'].toString())),
+                                            DataCell(
+                                              SizedBox(
+                                                width:200,
+                                                child: Text(
+                                                  doc['Description'].toString(),
+                                                  maxLines: 2,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ),
+                                            DataCell(
+                                              ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: Colors.red,
+                                                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                                                ),
+                                                onPressed: () {
+                                                  final data = doc.data();
+                                                  if (data is Map<String, dynamic>) {
+                                                    _showDeleteReasonDialog(context, doc.id, data, 'approvedCollection');
+                                                  }
+                                                },
+                                                child: const Text(
+                                                  'Delete',
+                                                  style: TextStyle(fontSize: 10, color: Colors.white),
+                                                ),
+                                              ),
+                                            ),
+                                            DataCell(
+                                              FutureBuilder(
+                                                future: UserData.getAddressFromCoordinates(doc['Location']),
+                                                builder: (context, snapshot) {
+                                                  return Text(snapshot.data?.toString() ?? 'Loading...');
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      }).toList(),
                                     ),
-                                  ),
-                                ))
-                                :(_selectedTypeUser=='User Type'
-                            ? UserData() : unapprovedAds())
+                                  );
+                                },
+                              ),
+                            )
+
+
+                            )
+                                :(_selectedTypeUser=='Owner'?UserData()
+                                :_selectedTypeUser=='unapproved ads'?unapprovedAds():
+                                _selectedTypeUser=='All Users'  ? AllUsersData():
+                                Container(child: Center(child: Text("No Data")))
+                            )
+                            // (_selectedTypeUser=='User Type'
+                            // ? UserData() : unapprovedAds())
                          //UserData(),
                           ),
                         )
@@ -732,6 +681,38 @@ SizedBox(width: 2,),
             ),
           ),
         ],
+      ),
+    );
+  }
+  Widget _headerCell(String title, double width) {
+    return SizedBox(
+      width: width,
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+
+  Widget _dataCell(String text, double width) {
+    return SizedBox(
+      width: width,
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 12),
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+
+  Widget _linkCell(String text, double width) {
+    return SizedBox(
+      width: width,
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 12, color: Colors.blue),
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
@@ -953,16 +934,7 @@ class _UserDataState extends State<UserData> {
 
   List<DocumentSnapshot> filteredDocs = [];
   Future<List<DocumentSnapshot>>? docsFuture;
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   fetchUsers();
-  //   _searchController.addListener(() {
-  //     setState(() {
-  //       docsFuture = _filterDocs(snapshot.data!.docs, _searchController.text);
-  //     });
-  //   });
-  // }
+
 
   @override
   void initState() {
@@ -1011,48 +983,15 @@ class _UserDataState extends State<UserData> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-          SizedBox(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width * 0.72, // Take 70% of the screen width
-            child: const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Name', style: TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.bold)),
-                 // SizedBox(width: .2,),
-                  Text('Address', style: TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.bold)),
-                // SizedBox(width: 1,),
-                  Text('Description', style: TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.bold)),
-                  Text('Totals ads', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                  Text('Images', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                  Text('Ads', style: TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.bold)),
-                  Text('Price', style: TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.bold)),
-                  Text('Protection plan', style: TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-          ),
           Padding(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: const EdgeInsets.all(16.0),
             child: SizedBox(
-              width: MediaQuery
-                  .of(context)
-                  .size
-                  .width * 0.26,
-              height:   MediaQuery.of(context).size.height * 0.07,
+              width: MediaQuery.of(context).size.width * 0.26,
+              height: MediaQuery.of(context).size.height * 0.07,
               child: TextFormField(
                 controller: _searchController,
                 decoration: const InputDecoration(
@@ -1063,208 +1002,178 @@ class _UserDataState extends State<UserData> {
               ),
             ),
           ),
-          const SizedBox(height: 5,),
           const Divider(),
-          const SizedBox(height: 10,),
-
+          const SizedBox(height: 10),
           SizedBox(
-            height: MediaQuery
-                .of(context)
-                .size
-                .height * 0.8, // Take 40% of the screen height
+            height: MediaQuery.of(context).size.height * 0.8,
             child: StreamBuilder<QuerySnapshot>(
               stream: _firestore.collection('approvedCollection').snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
-              //   var docs = _filterDocs(snapshot.data!.docs, _searchController.text);
-              //
-              // //  var docs = snapshot.data!.docs;
-              //
-              //   if (docs.isEmpty) {
-              //     return const Center(child: Text('No data available'));
-              //   }
 
                 return FutureBuilder(
-                    future: _filterDocs(snapshot.data!.docs, _searchController.text),
-                    builder: (context, futureSnapshot) {
-                      if (!futureSnapshot.hasData) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
+                  future: _filterDocs(snapshot.data!.docs, _searchController.text),
+                  builder: (context, futureSnapshot) {
+                    if (!futureSnapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-                      var docs = futureSnapshot.data!;
+                    var docs = futureSnapshot.data!;
+                    if (docs.isEmpty) {
+                      return const Center(child: Text('No data available'));
+                    }
 
-                      if (docs.isEmpty) {
-                        return const Center(child: Text('No data available'));
-                      }
-                    return ListView.builder(
-                      itemCount:docs.length,
-                      itemBuilder: (context, index) {
-                       // var doc = filteredDocs[index];
-                        var doc = docs[index];
-                        List<dynamic> images = doc['Pictures_Url'] ?? [];
-                        int currentIndex = 0;
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columns: const [
+                          DataColumn(label: Text('Name', style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(label: Text('Description', style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(label: Text('Total Ads', style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(label: Text('Images', style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(label: Text('Ads', style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(label: Text('Price', style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(label: Text('Protection Plan', style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(label: Text('Location', style: TextStyle(fontWeight: FontWeight.bold))),
+                        ],
+                        rows: docs.map((doc) {
+                          List<dynamic> images = doc['Pictures_Url'] ?? [];
+                          int currentIndex = 0;
 
-                        return FutureBuilder(
-                          future: Future.wait([
-                            getUserName(doc['Uid']),
-                            UserData.getAddressFromCoordinates(doc['Location']),
-                          ]),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasError) {
-                              return Text('Error: ${snapshot.error}');
-                            }
-                            if (!snapshot.hasData) {
-                              return const Center(child: CircularProgressIndicator());
-                            }
-                            final userName = snapshot.data![0];
-                            final address = snapshot.data![1];
-
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    flex: 2, // Adjust flex values for better spacing
-                                    child: Text(userName, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
+                          return DataRow(
+                            cells: [
+                              DataCell(FutureBuilder(
+                                future: getUserName(doc['Uid']),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) return const Text('Loading...');
+                                  return Text(snapshot.data!);
+                                },
+                              )),
+                              DataCell(
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.1, // 10% of screen width
+                                  child: Text(
+                                    doc['Description'].toString(),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
+                                    style: TextStyle(fontSize: 12),
                                   ),
-                                  Expanded(
-                                    flex: 2, // More space for address
-                                    child: Text(
-                                      address,
-                                      style: const TextStyle(fontSize: 10),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 30,),
+                                ),
+                              ),
 
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text(doc['Description'], style: const TextStyle(fontSize: 12)),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text(docs.length.toString(), style: const TextStyle(fontSize: 12)),
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return StatefulBuilder(
-                                            builder: (context, setState) {
-                                              return AlertDialog(
-                                                content: Column(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    Row(
-                                                      mainAxisAlignment: MainAxisAlignment.center,
-                                                      children: [
-                                                        IconButton(
-                                                          icon: const Icon(Icons.arrow_back_ios, size: 35),
-                                                          onPressed: currentIndex > 0
-                                                              ? () {
-                                                            setState(() {
-                                                              currentIndex--;
-                                                            });
-                                                          }
-                                                              : null,
-                                                        ),
-                                                        Image.network(
-                                                          images[currentIndex], // Directly using the URL
-                                                          height: 300,
-                                                          width: 500,
-                                                          fit: BoxFit.contain,
-                                                          loadingBuilder: (context, child, loadingProgress) {
-                                                            print(images[currentIndex]);
-                                                            if (loadingProgress == null) return child;
-                                                            return const Center(child: CircularProgressIndicator());
-                                                          },
-                                                          errorBuilder: (context, error, stackTrace) {
-                                                            return const Center(child: Text('Image failed to load', style: TextStyle(color: Colors.red)));
-                                                          },
-                                                        ),
-
-                                                        IconButton(
-                                                          icon: const Icon(Icons.arrow_forward_ios, size: 35),
-                                                          onPressed: currentIndex < images.length - 1
-                                                              ? () {
-                                                            setState(() {
-                                                              currentIndex++;
-                                                            });
-                                                          }
-                                                              : null,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              );
-                                            },
-                                          );
-                                        },
-                                      );
-                                    },
-                                    child: SizedBox(
-                                      width: MediaQuery.of(context).size.width * 0.08,
-                                      child: const Text(
-                                        'View Images',
-                                        style: TextStyle(fontSize: 12, color: Colors.blue),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: GestureDetector(
-                                      onTap: (){
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(builder: (context) => ListOfAds(uid: doc['Uid'])),
+                              DataCell(Text(docs.length.toString())),
+                              DataCell(
+                                InkWell(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return StatefulBuilder(
+                                          builder: (context, setState) {
+                                            return AlertDialog(
+                                              content: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
+                                                      IconButton(
+                                                        icon: const Icon(Icons.arrow_back_ios, size: 35),
+                                                        onPressed: currentIndex > 0
+                                                            ? () {
+                                                          setState(() {
+                                                            currentIndex--;
+                                                          });
+                                                        }
+                                                            : null,
+                                                      ),
+                                                      Image.network(
+                                                        images[currentIndex],
+                                                        height: 300,
+                                                        width: 500,
+                                                        fit: BoxFit.contain,
+                                                        loadingBuilder: (context, child, loadingProgress) {
+                                                          if (loadingProgress == null) return child;
+                                                          return const Center(child: CircularProgressIndicator());
+                                                        },
+                                                        errorBuilder: (context, error, stackTrace) {
+                                                          return const Text('Image failed to load', style: TextStyle(color: Colors.red));
+                                                        },
+                                                      ),
+                                                      IconButton(
+                                                        icon: const Icon(Icons.arrow_forward_ios, size: 35),
+                                                        onPressed: currentIndex < images.length - 1
+                                                            ? () {
+                                                          setState(() {
+                                                            currentIndex++;
+                                                          });
+                                                        }
+                                                            : null,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
                                         );
                                       },
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(12)
-                                                ,color: Colors.blue,
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(doc['Title'], style: const TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: Colors.white)),
-                                          )),
+                                    );
+                                  },
+                                  child: const Text('View Images', style: TextStyle(color: Colors.blue)),
+                                ),
+                              ),
+                              DataCell(
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => ListOfAds(uid: doc['Uid'])),
+                                    );
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    child: Text(
+                                      doc['Title'],
+                                      style: const TextStyle(color: Colors.white),
                                     ),
                                   ),
-                                    SizedBox(width: MediaQuery.of(context).size.height*.15,),
-
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text('\$${doc['Price']}', style: const TextStyle(fontSize: 12)),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text(doc['Insurance'], style: const TextStyle(fontSize: 12)),
-                                  ),
-                                  const SizedBox(width: 10,)
-                                ],
-                              )
-
-                            );
-                          },
-                        );
-                      },
+                                ),
+                              ),
+                              DataCell(Text('\$${doc['Price']}/${doc['Duration']}')),
+                              DataCell(Text(doc['Insurance'].toString())),
+                              DataCell(FutureBuilder(
+                                future: UserData.getAddressFromCoordinates(doc['Location']),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) return const Text('Loading...');
+                                  return Text(
+                                    snapshot.data!,
+                                    style: const TextStyle(fontSize: 10),
+                                    overflow: TextOverflow.ellipsis,
+                                  );
+                                },
+                              )),
+                            ],
+                          );
+                        }).toList(),
+                      ),
                     );
-                  }
+                  },
                 );
               },
             ),
-          )
+          ),
         ],
       ),
     );
   }
+
 
   Future<String> getUserName(String uid) async {
     final userDoc = await FirebaseFirestore.instance.collection('Users').doc(
@@ -1548,7 +1457,7 @@ class _unapprovedAdsState extends State<unapprovedAds> {
 
                                 Expanded(
                                   flex: 2,
-                                  child: Text('\$${doc['Price']}', style: const TextStyle(fontSize: 12)),
+                                  child: Text('\$${doc['Price']}/${doc['Duration']}', style: const TextStyle(fontSize: 12)),
                                 ),
                                 Expanded(
                                   flex: 2,

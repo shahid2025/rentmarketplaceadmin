@@ -15,6 +15,12 @@ class _RentersState extends State<Renters> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blue,
+        iconTheme: IconThemeData(
+          color: Colors.white, // Set the icon color to white
+        ),
+      ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collectionGroup('Dates').snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {

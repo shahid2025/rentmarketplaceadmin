@@ -45,7 +45,10 @@ class _FileClaimDataState extends State<FileClaimData> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(automaticallyImplyLeading: false,
+      appBar: AppBar(
+        iconTheme: const IconThemeData(
+          color: Colors.white, // Set the icon color to white
+        ),
         backgroundColor: Colors.blue,
         title: const Text("Filed Claims",style: TextStyle(fontWeight: FontWeight.w800,fontSize: 20,color: Colors.white,),),
         centerTitle: true,
@@ -162,19 +165,19 @@ class _FileClaimDataState extends State<FileClaimData> {
                                     final result = await showDialog(
                                       context: context,
                                       builder: (context) => AlertDialog(
-                                        title: Text('Enter Approval Message'),
+                                        title: const Text('Enter Approval Message'),
                                         content: TextField(
                                           controller: approvalMessageController,
-                                          decoration: InputDecoration(hintText: 'Enter message'),
+                                          decoration: const InputDecoration(hintText: 'Enter message'),
                                         ),
                                         actions: [
                                           TextButton(
                                             onPressed: () => Navigator.of(context).pop(false),
-                                            child: Text('Cancel'),
+                                            child: const Text('Cancel'),
                                           ),
                                           TextButton(
                                             onPressed: () => Navigator.of(context).pop(true),
-                                            child: Text('Submit'),
+                                            child: const Text('Submit'),
                                           ),
                                         ],
                                       ),
@@ -221,19 +224,19 @@ class _FileClaimDataState extends State<FileClaimData> {
                                     final result = await showDialog(
                                       context: context,
                                       builder: (context) => AlertDialog(
-                                        title: Text('Enter Denial Message'),
+                                        title: const Text('Enter Denial Message'),
                                         content: TextField(
                                           controller: denialMessageController,
-                                          decoration: InputDecoration(hintText: 'Enter message'),
+                                          decoration: const InputDecoration(hintText: 'Enter message'),
                                         ),
                                         actions: [
                                           TextButton(
                                             onPressed: () => Navigator.of(context).pop(false),
-                                            child: Text('Cancel'),
+                                            child: const Text('Cancel'),
                                           ),
                                           TextButton(
                                             onPressed: () => Navigator.of(context).pop(true),
-                                            child: Text('Submit'),
+                                            child: const Text('Submit'),
                                           ),
                                         ],
                                       ),
@@ -281,19 +284,19 @@ class _FileClaimDataState extends State<FileClaimData> {
                                     final result = await showDialog(
                                       context: context,
                                       builder: (context) => AlertDialog(
-                                        title: Text('Enter Request Message'),
+                                        title: const Text('Enter Request Message'),
                                         content: TextField(
                                           controller: requestMessageController,
-                                          decoration: InputDecoration(hintText: 'Enter message'),
+                                          decoration: const InputDecoration(hintText: 'Enter message'),
                                         ),
                                         actions: [
                                           TextButton(
                                             onPressed: () => Navigator.of(context).pop(false),
-                                            child: Text('Cancel'),
+                                            child: const Text('Cancel'),
                                           ),
                                           TextButton(
                                             onPressed: () => Navigator.of(context).pop(true),
-                                            child: Text('Submit'),
+                                            child: const Text('Submit'),
                                           ),
                                         ],
                                       ),
@@ -337,19 +340,19 @@ class _FileClaimDataState extends State<FileClaimData> {
                                     final result = await showDialog(
                                       context: context,
                                       builder: (context) => AlertDialog(
-                                        title: Text('Enter Payment Message'),
+                                        title: const Text('Enter Payment Message'),
                                         content: TextField(
                                           controller: paymentMessageController,
-                                          decoration: InputDecoration(hintText: 'Enter message'),
+                                          decoration: const InputDecoration(hintText: 'Enter message'),
                                         ),
                                         actions: [
                                           TextButton(
                                             onPressed: () => Navigator.of(context).pop(false),
-                                            child: Text('Cancel'),
+                                            child: const Text('Cancel'),
                                           ),
                                           TextButton(
                                             onPressed: () => Navigator.of(context).pop(true),
-                                            child: Text('Submit'),
+                                            child: const Text('Submit'),
                                           ),
                                         ],
                                       ),
