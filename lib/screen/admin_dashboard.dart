@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:geocoding/geocoding.dart';
 import 'package:rentmarketplaceadmin/screen/alluser%20data.dart';
 import 'package:rentmarketplaceadmin/screen/file%20claim%20data.dart';
+import 'package:rentmarketplaceadmin/screen/from%20owner%20side%20check%20in.dart';
 import 'package:rentmarketplaceadmin/screen/listof%20ads.dart';
 import 'package:rentmarketplaceadmin/screen/renters.dart';
 import 'package:rentmarketplaceadmin/screen/status%20screen.dart';
@@ -84,10 +85,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               context,
                               MaterialPageRoute(builder: (context) => FileClaimData()),
                             );
-    // setState(() {
-    // _selectedTypeoflikedrawer = 'File Claim';
-    // });
-    // print('anything');
 
                           },
                           child: buildMenuItem(Icons.person, "File Claim", _selectedTypeoflikedrawer == 'File Claim' ? Colors.yellow : Colors.white,)),
@@ -112,6 +109,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               MaterialPageRoute(builder: (context) => DashboardScreen()),
                             );},
                           child: buildMenuItem(Icons.dashboard, "DashboardScreen", _selectedTypeoflikedrawer == 'DashboardScreen' ? Colors.yellow : Colors.white,)),
+                      GestureDetector(
+                          onTap: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => FromOwnerSideCheckIn()),
+                            );},
+                          child: buildMenuItem(Icons.dashboard, "FromOwnerSideCheckIn", _selectedTypeoflikedrawer == 'FromOwnerSideCheckIn' ? Colors.yellow : Colors.white,)),
                     ],
                   ),
                 ),
